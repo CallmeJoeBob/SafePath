@@ -72,6 +72,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         status = findViewById(R.id.status);
         mMapView = findViewById(R.id.mMapView);
+        mGraphicsOverlay = new GraphicsOverlay();
+        mMapView.getGraphicsOverlays().add(mGraphicsOverlay);
 
         // Create context and api client instance
         android.content.Context context = getApplicationContext();
