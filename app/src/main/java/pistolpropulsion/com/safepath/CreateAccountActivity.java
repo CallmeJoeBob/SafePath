@@ -31,6 +31,8 @@ public class CreateAccountActivity extends AppCompatActivity {
     private Button createaccount_button;
     private EditText email;
     private EditText password;
+    private EditText emergencyphone;
+    private EditText name;
     private DatabaseReference mDatabase;
 
 
@@ -43,6 +45,8 @@ public class CreateAccountActivity extends AppCompatActivity {
 
         email = findViewById(R.id.EmailInput);
         password = findViewById(R.id.PasswordInput);
+        emergencyphone = findViewById(R.id.PhoneInput);
+        name = findViewById(R.id.NameInput);
         createaccount_button = findViewById(R.id.createaccount);
 
         createaccount_button.setOnClickListener(new View.OnClickListener() {
