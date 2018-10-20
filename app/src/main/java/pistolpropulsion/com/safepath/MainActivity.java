@@ -57,6 +57,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.ResultCallbacks;
 import com.google.android.gms.common.api.Status;
+import com.google.firebase.auth.FirebaseAuth;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -80,6 +81,7 @@ public class MainActivity extends AppCompatActivity {
     private Point mEnd;
     private double lat;
     private double lon;
+    private Button logout_button;
 
 
     // Constants
@@ -98,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
         mMapView = findViewById(R.id.mMapView);
         mGraphicsOverlay = new GraphicsOverlay();
         mMapView.getGraphicsOverlays().add(mGraphicsOverlay);
-
+        logout_button = findViewById(R.id.LogoutButton);
         mMapView.setOnTouchListener(new DefaultMapViewOnTouchListener(this, mMapView) {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -108,6 +110,12 @@ public class MainActivity extends AppCompatActivity {
                 Point mapPoint = mMapView.screenToLocation(screenPoint);
                 mapClicked(mapPoint);
                 return super.onSingleTapConfirmed(e);
+            }
+        });
+        logout_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                logout();
             }
         });
 
@@ -305,6 +313,11 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
     }
 
+    public void logout(){
+        FirebaseAuth.getInstance().signOut();
+        Intent signintent = new Intent(MainActivity.this, LoginActivity.class);
+        startActivity(signintent);
+    }
     private void findRoute() {
         String routeServiceURI = "https://utility.arcgis.com/usrsvcs/appservices/8GnYPj2wiDmNVyv1/rest/services/World/Route/NAServer/Route_World/";
         final RouteTask solveRouteTask = new RouteTask(getApplicationContext(), routeServiceURI);
