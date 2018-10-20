@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
@@ -15,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -22,8 +24,12 @@ import android.widget.TextView;
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
 import com.esri.arcgisruntime.mapping.Basemap;
+import com.esri.arcgisruntime.mapping.view.DefaultMapViewOnTouchListener;
+import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
 import com.esri.arcgisruntime.mapping.view.MapView;
+import com.esri.arcgisruntime.symbology.SimpleLineSymbol;
+import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
 import com.google.android.gms.awareness.Awareness;
 import com.google.android.gms.awareness.FenceApi;
 import com.google.android.gms.awareness.fence.AwarenessFence;
@@ -75,6 +81,18 @@ public class MainActivity extends AppCompatActivity {
         mGraphicsOverlay = new GraphicsOverlay();
         mMapView.getGraphicsOverlays().add(mGraphicsOverlay);
 
+        mMapView.setOnTouchListener(new DefaultMapViewOnTouchListener(this, mMapView) {
+            @Override
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+                android.graphics.Point screenPoint = new android.graphics.Point(
+                        Math.round(e.getX()),
+                        Math.round(e.getY()));
+                Point mapPoint = mMapView.screenToLocation(screenPoint);
+                mapClicked(mapPoint);
+                return super.onSingleTapConfirmed(e);
+            }
+        });
+
         // Create context and api client instance
         android.content.Context context = getApplicationContext();
         mGoogleApiClient = new GoogleApiClient.Builder(context)
@@ -116,6 +134,8 @@ public class MainActivity extends AppCompatActivity {
                         Log.i(TAG, "Lat: " + location.getLatitude() + ", Lon: " + location.getLongitude());
                         lat = location.getLatitude();
                         lon = location.getLongitude();
+                        //start = new Point(lat, lon)
+                        setStartMarker(new Point(lon, lat));
                         setupMap();
                     }
                 });
@@ -129,6 +149,32 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
         unregisterFence();
         unregisterReceiver(fenceReceiver);
+    }
+
+    private void setMapMarker(Point location, SimpleMarkerSymbol.Style style, int markerColor, int outlineColor) {
+        float markerSize = 8.0f;
+        float markerOutlineThickness = 2.0f;
+        SimpleMarkerSymbol pointSymbol = new SimpleMarkerSymbol(style, markerColor, markerSize);
+        pointSymbol.setOutline(new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, outlineColor, markerOutlineThickness));
+        Graphic pointGraphic = new Graphic(location, pointSymbol);
+        mGraphicsOverlay.getGraphics().add(pointGraphic);
+    }
+
+    private void setStartMarker(Point location) {
+        mGraphicsOverlay.getGraphics().clear();
+        setMapMarker(location, SimpleMarkerSymbol.Style.DIAMOND, Color.rgb(226, 119, 40), Color.BLUE);
+        mStart = location;
+        mEnd = null;
+    }
+
+    private void setEndMarker(Point location) {
+        setMapMarker(location, SimpleMarkerSymbol.Style.SQUARE, Color.rgb(40, 119, 226), Color.RED);
+        mEnd = location;
+        // findRoute();
+    }
+
+    private void mapClicked(Point location) {
+        setEndMarker(location);
     }
 
     private void setupMap() {
