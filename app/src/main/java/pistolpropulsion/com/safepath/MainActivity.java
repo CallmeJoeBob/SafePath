@@ -306,7 +306,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void findRoute() {
-        String routeServiceURI = "https://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World";
+        String routeServiceURI = "https://utility.arcgis.com/usrsvcs/appservices/8GnYPj2wiDmNVyv1/rest/services/World/Route/NAServer/Route_World/";
         final RouteTask solveRouteTask = new RouteTask(getApplicationContext(), routeServiceURI);
         solveRouteTask.loadAsync();
         solveRouteTask.addDoneLoadingListener(new Runnable() {
