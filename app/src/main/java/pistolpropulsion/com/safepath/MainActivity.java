@@ -22,11 +22,13 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.esri.arcgisruntime.geometry.Point;
+import com.esri.arcgisruntime.location.LocationDataSource;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
 import com.esri.arcgisruntime.mapping.Basemap;
 import com.esri.arcgisruntime.mapping.view.DefaultMapViewOnTouchListener;
 import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
+import com.esri.arcgisruntime.mapping.view.LocationDisplay;
 import com.esri.arcgisruntime.mapping.view.MapView;
 import com.esri.arcgisruntime.symbology.SimpleLineSymbol;
 import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
@@ -57,6 +59,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String TAG = "MainActivity";
     //    - ESRI Routing -
     private MapView mMapView;
+    LocationDisplay display;
     private GraphicsOverlay mGraphicsOverlay;
     private Point mStart;
     private Point mEnd;
@@ -131,12 +134,12 @@ public class MainActivity extends AppCompatActivity {
                             return;
                         }
                         Location location = locationResult.getLocation();
-                        Log.i(TAG, "Lat: " + location.getLatitude() + ", Lon: " + location.getLongitude());
+                        //Log.i(TAG, "Lat: " + location.getLatitude() + ", Lon: " + location.getLongitude());
                         lat = location.getLatitude();
                         lon = location.getLongitude();
                         //start = new Point(lat, lon)
-                        setStartMarker(new Point(lon, lat));
                         setupMap();
+                        display.startAsync();
                     }
                 });
 
@@ -174,7 +177,16 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void mapClicked(Point location) {
-        setEndMarker(location);
+        if (mStart == null) {
+            // Start is not set, set it to a tapped location
+            setStartMarker(location);
+        } else if (mEnd == null) {
+            // End is not set, set it to the tapped location then find the route
+            setEndMarker(location);
+        } else {
+            // Both locations are set; re-set the start to the tapped location
+            setStartMarker(location);
+        }
     }
 
     private void setupMap() {
@@ -185,6 +197,7 @@ public class MainActivity extends AppCompatActivity {
             int levelOfDetail = 17;
             ArcGISMap map = new ArcGISMap(basemapType, latitude, longitude, levelOfDetail);
             mMapView.setMap(map);
+            display = mMapView.getLocationDisplay();
         }
     }
 
