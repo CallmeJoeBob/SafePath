@@ -14,6 +14,9 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
 import static android.content.ContentValues.TAG;
 
 /**
@@ -27,6 +30,7 @@ public class CreateAccountActivity extends AppCompatActivity {
     private Button createaccount_button;
     private EditText email;
     private EditText password;
+    private DatabaseReference mDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,6 +38,7 @@ public class CreateAccountActivity extends AppCompatActivity {
         setContentView(R.layout.activity_alert);
 
         mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
 
         email = findViewById(R.id.EmailInput);
         password = findViewById(R.id.PasswordInput);
