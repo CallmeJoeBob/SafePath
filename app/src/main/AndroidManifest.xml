@@ -25,6 +25,8 @@
             android:value="AIzaSyBkQwzB7mT9ystSiW81vulG5caxMWnrxNc" />
 
         <activity android:name=".AlertActivity"></activity>
+        <activity android:name=".CreateAccountActivity"></activity>
+        <activity android:name=".LoginActivity"></activity>
     </application>
 
 </manifest>
