@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.constraint.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -9,7 +10,71 @@
         android:id="@+id/createaccount"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="110dp"
+        android:layout_marginEnd="110dp"
         android:text="Create Account"
-        tools:layout_editor_absoluteX="148dp"
-        tools:layout_editor_absoluteY="410dp" />
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:layout_editor_absoluteY="400dp" />
+
+    <EditText
+        android:id="@+id/NameInput"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:fontFamily="@font/anaheim"
+        android:inputType="textPersonName"
+        android:text="@string/name"
+        android:textAlignment="viewStart"
+        android:textAllCaps="false"
+        android:textSize="24sp"
+        tools:layout_editor_absoluteX="20dp"
+        tools:layout_editor_absoluteY="100dp" />
+
+    <EditText
+        android:id="@+id/PhoneInput"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:fontFamily="@font/anaheim"
+        android:inputType="phone"
+        android:text="@string/phone"
+        android:textSize="24sp"
+        tools:layout_editor_absoluteX="20dp"
+        tools:layout_editor_absoluteY="175dp" />
+
+    <EditText
+    android:id="@+id/EmailInput"
+    android:layout_width="300dp"
+    android:layout_height="wrap_content"
+    android:ems="10"
+    android:fontFamily="@font/anaheim"
+    android:inputType="textEmailAddress"
+    android:text="@string/email"
+    android:textSize="24sp"
+    tools:layout_editor_absoluteX="20dp"
+    tools:layout_editor_absoluteY="250dp" />
+
+    <EditText
+        android:id="@+id/PasswordInput"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:ems="10"
+        android:fontFamily="@font/anaheim"
+        android:inputType="textPassword|textVisiblePassword"
+        android:text="@string/pass"
+        android:textSize="24sp"
+        tools:layout_editor_absoluteX="20dp"
+        tools:layout_editor_absoluteY="325dp" />
+
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="TextView"
+        android:textSize="30sp"
+        tools:layout_editor_absoluteX="69dp"
+        tools:layout_editor_absoluteY="32dp"
+        tools:text="Create an Account" />
+
 </android.support.constraint.ConstraintLayout>
