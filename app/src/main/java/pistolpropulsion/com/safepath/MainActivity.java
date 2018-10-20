@@ -20,6 +20,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
@@ -28,6 +29,9 @@ import com.esri.arcgisruntime.mapping.view.DefaultMapViewOnTouchListener;
 import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
 import com.esri.arcgisruntime.mapping.view.MapView;
+import com.esri.arcgisruntime.security.AuthenticationManager;
+import com.esri.arcgisruntime.security.DefaultAuthenticationChallengeHandler;
+import com.esri.arcgisruntime.security.OAuthConfiguration;
 import com.esri.arcgisruntime.symbology.SimpleLineSymbol;
 import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
 import com.google.android.gms.awareness.Awareness;
@@ -45,6 +49,7 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.ResultCallbacks;
 import com.google.android.gms.common.api.Status;
 
+import java.net.MalformedURLException;
 import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
@@ -137,6 +142,7 @@ public class MainActivity extends AppCompatActivity {
                         //start = new Point(lat, lon)
                         setStartMarker(new Point(lon, lat));
                         setupMap();
+                        setupOauth();
                     }
                 });
 
@@ -255,6 +261,25 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
+    }
+
+    private void setupOauth() {
+        String clientId = getResources().getString(R.string.client_id);
+        String redirectUri = getResources().getString(R.string.redirect_uri);
+
+        try {
+            OAuthConfiguration oAuthConfiguration = new OAuthConfiguration("https://www.arcgis.com", clientId, redirectUri);
+            DefaultAuthenticationChallengeHandler authenticationChallengeHandler = new DefaultAuthenticationChallengeHandler(this);
+            AuthenticationManager.setAuthenticationChallengeHandler(authenticationChallengeHandler);
+            AuthenticationManager.addOAuthConfiguration(oAuthConfiguration);
+        } catch (MalformedURLException e) {
+            showError(e.getMessage());
+        }
+    }
+
+    private void showError(String message) {
+        Log.d("FindRoute", message);
+        Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
     }
 
     protected void queryFence(final String fenceKey) {
