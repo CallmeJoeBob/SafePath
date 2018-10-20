@@ -31,6 +31,8 @@ public class CreateAccountActivity extends AppCompatActivity {
     private Button createaccount_button;
     private EditText email;
     private EditText password;
+    private EditText name;
+    private EditText number;
     private DatabaseReference mDatabase;
 
 
@@ -43,12 +45,14 @@ public class CreateAccountActivity extends AppCompatActivity {
 
         email = findViewById(R.id.EmailInput);
         password = findViewById(R.id.PasswordInput);
+        name = findViewById(R.id.NameInput);
+        number = findViewById(R.id.PhoneInput);
         createaccount_button = findViewById(R.id.createaccount);
 
         createaccount_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                createAccount(email.getText().toString(), password.getText().toString());
+                createAccount();
             }
         });
     }
@@ -69,8 +73,8 @@ public class CreateAccountActivity extends AppCompatActivity {
         }
     }
 
-    public void createAccount(String email, String password) {
-        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this,
+    public void createAccount() {
+        mAuth.createUserWithEmailAndPassword(email.getText().toString(), password.getText().toString()).addOnCompleteListener(this,
                 new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
@@ -78,7 +82,10 @@ public class CreateAccountActivity extends AppCompatActivity {
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "createUserWithEmail:success");
                             FirebaseUser user = mAuth.getCurrentUser();
-
+                            User userObject = new User(email.getText().toString(), password.getText().toString(), name.getText().toString(), number.getText().toString());
+                            mDatabase.child("users").child(
+                                    (user != null) ? user.getUid() : null).
+                                    setValue(userObject);
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
