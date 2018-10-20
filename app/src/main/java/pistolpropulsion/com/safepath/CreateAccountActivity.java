@@ -1,19 +1,32 @@
 package pistolpropulsion.com.safepath;
 
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import static android.content.ContentValues.TAG;
 
 /**
  * Created by Abby on 10/20/18.
+ * Written by Johanna 10/20/18
  */
 
 public class CreateAccountActivity extends AppCompatActivity {
 
     private FirebaseAuth mAuth;
-
+    private Button createaccount_button;
+    private EditText email;
+    private EditText password;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -22,6 +35,18 @@ public class CreateAccountActivity extends AppCompatActivity {
 
         mAuth = FirebaseAuth.getInstance();
 
+        email = findViewById(R.id.EmailInput);
+        password = findViewById(R.id.PasswordInput);
+        createaccount_button = findViewById(R.id.createaccount);
+
+        createaccount_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                createAccount(email.getText().toString(), password.getText().toString());
+
+            }
+                                                }
+        );
 
     }
 
@@ -50,7 +75,7 @@ public class CreateAccountActivity extends AppCompatActivity {
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(EmailPasswordActivity.this, "Authentication failed.",
+                            Toast.makeText(CreateAccountActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                             updateUI(null);
                         }
@@ -58,7 +83,6 @@ public class CreateAccountActivity extends AppCompatActivity {
                         // ...
                     }
                 });
-
 
     }
 
@@ -76,7 +100,7 @@ public class CreateAccountActivity extends AppCompatActivity {
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(EmailPasswordActivity.this, "Authentication failed.",
+                            Toast.makeText(CreateAccountActivity.this, "Authentication failed.",
                                     Toast.LENGTH_SHORT).show();
                             updateUI(null);
                         }
@@ -84,10 +108,6 @@ public class CreateAccountActivity extends AppCompatActivity {
                         // ...
                     }
                 });
-
-
-
-
 
     }
 
