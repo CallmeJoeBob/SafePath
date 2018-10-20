@@ -1,5 +1,6 @@
 package pistolpropulsion.com.safepath;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -31,6 +32,8 @@ public class CreateAccountActivity extends AppCompatActivity {
     private EditText email;
     private EditText password;
     private DatabaseReference mDatabase;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -47,8 +50,7 @@ public class CreateAccountActivity extends AppCompatActivity {
             public void onClick(View view) {
                 createAccount(email.getText().toString(), password.getText().toString());
             }
-                                                }
-        );
+        });
     }
 
     public void onStart() {
@@ -61,11 +63,15 @@ public class CreateAccountActivity extends AppCompatActivity {
     }
 
     private void updateUI(FirebaseUser currentUser) {
+        if(currentUser != null) {
+            Intent signup = new Intent(CreateAccountActivity.this, MainActivity.class);
+            startActivity(signup);
+        }
     }
 
     public void createAccount(String email, String password) {
-        mAuth.createUserWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+        mAuth.createUserWithEmailAndPassword(email, password).addOnCompleteListener(this,
+                new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
@@ -86,30 +92,4 @@ public class CreateAccountActivity extends AppCompatActivity {
                 });
 
     }
-
-    public void signIn(String email, String password) {
-
-        mAuth.signInWithEmailAndPassword(email, password)
-                .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "signInWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            updateUI(user);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "signInWithEmail:failure", task.getException());
-                            Toast.makeText(CreateAccountActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                            updateUI(null);
-                        }
-
-                        // ...
-                    }
-                });
-
-    }
-
 }
