@@ -250,6 +250,7 @@ public class MainActivity extends AppCompatActivity {
                 });
     }
 
+    // Help clear the fences when the app finishes
     protected void unregisterFence() {
         Awareness.FenceApi.updateFences(
                 mGoogleApiClient,
@@ -268,7 +269,7 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
+    // Listener for the geofence
     class LocationBroadcastReceiver extends BroadcastReceiver {
 
         @Override
@@ -294,6 +295,7 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    // Authentication stuff
     private void setupOauth() {
         String clientId = getResources().getString(R.string.client_id);
         String redirectUri = getResources().getString(R.string.redirect_uri);
@@ -308,6 +310,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // Error handling
     private void showError(String message) {
         Log.d("FindRoute", message);
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
@@ -318,6 +321,8 @@ public class MainActivity extends AppCompatActivity {
         Intent signintent = new Intent(MainActivity.this, LoginActivity.class);
         startActivity(signintent);
     }
+
+    // Route locating
     private void findRoute() {
         String routeServiceURI = "https://utility.arcgis.com/usrsvcs/appservices/8GnYPj2wiDmNVyv1/rest/services/World/Route/NAServer/Route_World/";
         final RouteTask solveRouteTask = new RouteTask(getApplicationContext(), routeServiceURI);
@@ -363,28 +368,5 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-
-    protected void queryFence(final String fenceKey) {
-        Awareness.FenceApi.queryFences(mGoogleApiClient,
-                FenceQueryRequest.forFences(Arrays.asList(fenceKey)))
-                .setResultCallback(new ResultCallback<FenceQueryResult>() {
-                    @Override
-                    public void onResult(@NonNull FenceQueryResult fenceQueryResult) {
-                        if (!fenceQueryResult.getStatus().isSuccess()) {
-                            Log.e(TAG, "Could not query fence: " + fenceKey);
-                            return;
-                        }
-                        FenceStateMap map = fenceQueryResult.getFenceStateMap();
-                        for (String fenceKey : map.getFenceKeys()) {
-                            FenceState fenceState = map.getFenceState(fenceKey);
-                            Log.i(TAG, "Fence " + fenceKey + ": "
-                                    + fenceState.getCurrentState()
-                                    + ", was="
-                                    + fenceState.getPreviousState()
-                                    + ", lastUpdateTime=");
-                        }
-                    }
-                });
     }
 }
