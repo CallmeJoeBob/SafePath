@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="client_id">AkKeQf6QxZUl3DDe</string>
+    <string name="redirect_uri">safepath://auth</string>
+</resources>
