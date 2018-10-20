@@ -38,36 +38,41 @@ import java.util.Arrays;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final String FENCE_RECEIVER_ACTION = "FENCE_RECEIVE";
-
+    // API related objects
     private LocationBroadcastReceiver fenceReceiver;
     private PendingIntent mFencePendingIntent;
     private GoogleApiClient mGoogleApiClient;
     private static final String TAG = "MainActivity";
 
+    // Constants
+    private static final String FENCE_RECEIVER_ACTION = "FENCE_RECEIVE";
+    private static final int PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 940;
+
+    // Widgets
     private TextView status;
-    private Button button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         status = findViewById(R.id.status);
-        button = findViewById(R.id.button);
 
+        // Create context and api client instance
         android.content.Context context = getApplicationContext();
         mGoogleApiClient = new GoogleApiClient.Builder(context)
                 .addApi(Awareness.API)
                 .build();
         mGoogleApiClient.connect();
 
+        // Check permissions
         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_CALENDAR)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(MainActivity.this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    0);
+                    PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
         }
 
+        //Getting current location
         Awareness.SnapshotApi.getLocation(mGoogleApiClient)
                 .setResultCallback(new ResultCallback<LocationResult>() {
                     @Override
@@ -81,20 +86,27 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-
+        // Fence location
         fenceReceiver = new LocationBroadcastReceiver();
         Intent intent = new Intent(FENCE_RECEIVER_ACTION);
         mFencePendingIntent = PendingIntent.getBroadcast(MainActivity.this,
                 10001,
                 intent,
                 0);
+    }
 
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
+    @Override
+    protected void onStart() {
+        super.onStart();
+        registerFence();
+        registerReceiver(fenceReceiver, new IntentFilter(FENCE_RECEIVER_ACTION));
+    }
 
-            }
-        });
+    @Override
+    protected void onStop() {
+        super.onStop();
+        unregisterFence();
+        unregisterReceiver(fenceReceiver);
     }
 
     protected void registerFence() {
@@ -102,9 +114,9 @@ public class MainActivity extends AppCompatActivity {
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(MainActivity.this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                    0);
+                    PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
         }
-        AwarenessFence locationFence = AwarenessFence.not(LocationFence.in(33.776569, -84.3960469, 10, 100));
+        AwarenessFence locationFence = AwarenessFence.not(LocationFence.in(33.7765673, -84.3960469, 10, 100));
         Awareness.FenceApi.updateFences(
                 mGoogleApiClient,
                 new FenceUpdateRequest.Builder()
@@ -187,19 +199,5 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        registerFence();
-        registerReceiver(fenceReceiver, new IntentFilter(FENCE_RECEIVER_ACTION));
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        unregisterFence();
-        unregisterReceiver(fenceReceiver);
     }
 }
