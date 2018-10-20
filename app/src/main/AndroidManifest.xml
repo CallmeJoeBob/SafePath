@@ -13,32 +13,24 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
         <activity android:name=".MainActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
 
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
         </activity>
 
         <meta-data
             android:name="com.google.android.awareness.API_KEY"
             android:value="AIzaSyBkQwzB7mT9ystSiW81vulG5caxMWnrxNc" />
-        <meta-data
-            android:name="preloaded_fonts"
-            android:resource="@array/preloaded_fonts" />
 
         <activity android:name=".AlertActivity"></activity>
         <activity android:name=".CreateAccountActivity"></activity>
-        <activity android:name=".LoginActivity"></activity>
-        <activity
-            android:name="com.esri.arcgisruntime.security.DefaultOAuthIntentReceiver"
-            android:label="OAuthIntentReceiver"
-            android:launchMode="singleTask">
+        <activity android:name=".LoginActivity">
             <intent-filter>
-                <action android:name="android.intent.action.VIEW"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="my-devlab-app"/>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
     </application>
