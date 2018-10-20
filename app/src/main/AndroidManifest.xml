@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="pistolpropulsion.com.safepath">
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
 
     <application
         android:allowBackup="true"
@@ -21,7 +21,9 @@
 
         <meta-data
             android:name="com.google.android.awareness.API_KEY"
-            android:value="AIzaSyBkQwzB7mT9ystSiW81vulG5caxMWnrxNc"/>
+            android:value="AIzaSyBkQwzB7mT9ystSiW81vulG5caxMWnrxNc" />
+
+        <activity android:name=".AlertActivity"></activity>
     </application>
 
 </manifest>
