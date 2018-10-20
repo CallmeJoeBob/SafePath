@@ -23,6 +23,9 @@
         <meta-data
             android:name="com.google.android.awareness.API_KEY"
             android:value="AIzaSyBkQwzB7mT9ystSiW81vulG5caxMWnrxNc" />
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
 
         <activity android:name=".AlertActivity"></activity>
         <activity android:name=".CreateAccountActivity"></activity>
