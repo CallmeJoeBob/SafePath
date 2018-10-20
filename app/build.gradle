@@ -30,6 +30,7 @@ dependencies {
     implementation 'com.google.android.gms:play-services-awareness:16.0.0'
     implementation 'com.google.firebase:firebase-auth:16.0.5'
     implementation 'com.esri.arcgisruntime:arcgis-android:100.4.0'
+    compile group: "com.twilio.sdk", name: "twilio", version: "7.29.0"
 }
 
 
