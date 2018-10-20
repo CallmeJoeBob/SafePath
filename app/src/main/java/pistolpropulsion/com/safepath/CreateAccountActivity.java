@@ -31,12 +31,10 @@ public class CreateAccountActivity extends AppCompatActivity {
     private EditText email;
     private EditText password;
     private DatabaseReference mDatabase;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_alert);
-
+        setContentView(R.layout.activity_createaccount);
         mAuth = FirebaseAuth.getInstance();
         mDatabase = FirebaseDatabase.getInstance().getReference();
 
@@ -48,11 +46,9 @@ public class CreateAccountActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 createAccount(email.getText().toString(), password.getText().toString());
-
             }
                                                 }
         );
-
     }
 
     public void onStart() {
