@@ -22,7 +22,10 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.esri.arcgisruntime.concurrent.ListenableFuture;
 import com.esri.arcgisruntime.geometry.Point;
+import com.esri.arcgisruntime.geometry.Polyline;
+import com.esri.arcgisruntime.loadable.LoadStatus;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
 import com.esri.arcgisruntime.mapping.Basemap;
 import com.esri.arcgisruntime.mapping.view.DefaultMapViewOnTouchListener;
@@ -34,6 +37,11 @@ import com.esri.arcgisruntime.security.DefaultAuthenticationChallengeHandler;
 import com.esri.arcgisruntime.security.OAuthConfiguration;
 import com.esri.arcgisruntime.symbology.SimpleLineSymbol;
 import com.esri.arcgisruntime.symbology.SimpleMarkerSymbol;
+import com.esri.arcgisruntime.tasks.networkanalysis.Route;
+import com.esri.arcgisruntime.tasks.networkanalysis.RouteParameters;
+import com.esri.arcgisruntime.tasks.networkanalysis.RouteResult;
+import com.esri.arcgisruntime.tasks.networkanalysis.RouteTask;
+import com.esri.arcgisruntime.tasks.networkanalysis.Stop;
 import com.google.android.gms.awareness.Awareness;
 import com.google.android.gms.awareness.FenceApi;
 import com.google.android.gms.awareness.fence.AwarenessFence;
@@ -50,7 +58,10 @@ import com.google.android.gms.common.api.ResultCallbacks;
 import com.google.android.gms.common.api.Status;
 
 import java.net.MalformedURLException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -176,7 +187,7 @@ public class MainActivity extends AppCompatActivity {
     private void setEndMarker(Point location) {
         setMapMarker(location, SimpleMarkerSymbol.Style.SQUARE, Color.rgb(40, 119, 226), Color.RED);
         mEnd = location;
-        // findRoute();
+        findRoute();
     }
 
     private void mapClicked(Point location) {
@@ -280,6 +291,53 @@ public class MainActivity extends AppCompatActivity {
     private void showError(String message) {
         Log.d("FindRoute", message);
         Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG).show();
+    }
+
+    private void findRoute() {
+        String routeServiceURI = "https://route.arcgis.com/arcgis/rest/services/World/Route/NAServer/Route_World";
+        final RouteTask solveRouteTask = new RouteTask(getApplicationContext(), routeServiceURI);
+        solveRouteTask.loadAsync();
+        solveRouteTask.addDoneLoadingListener(new Runnable() {
+            @Override public void run() {
+                if (solveRouteTask.getLoadStatus() == LoadStatus.LOADED) {
+                    final ListenableFuture<RouteParameters> routeParamsFuture = solveRouteTask.createDefaultParametersAsync();
+                    routeParamsFuture.addDoneListener(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                RouteParameters routeParameters = routeParamsFuture.get();
+                                List<Stop> stops = new ArrayList<>();
+                                stops.add(new Stop(mStart));
+                                stops.add(new Stop(mEnd));
+                                routeParameters.setStops(stops);
+                                final ListenableFuture<RouteResult> routeResultFuture = solveRouteTask.solveRouteAsync(routeParameters);
+                                routeResultFuture.addDoneListener(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        try {
+                                            RouteResult routeResult = routeResultFuture.get();
+                                            Route firstRoute = routeResult.getRoutes().get(0);
+                                            Polyline routePolyline = firstRoute.getRouteGeometry();
+                                            SimpleLineSymbol routeSymbol = new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.BLUE, 4.0f);
+                                            Graphic routeGraphic = new Graphic(routePolyline, routeSymbol);
+                                            mGraphicsOverlay.getGraphics().add(routeGraphic);
+
+                                        } catch (InterruptedException | ExecutionException e) {
+                                            showError("Solve RouteTask failed " + e.getMessage());
+                                        }
+                                    }
+                                });
+
+                            } catch (InterruptedException | ExecutionException e) {
+                                showError("Cannot create RouteTask parameters " + e.getMessage());
+                            }
+                        }
+                    });
+                } else {
+                    showError("Unable to load RouteTask " + solveRouteTask.getLoadStatus().toString());
+                }
+            }
+        });
     }
 
     protected void queryFence(final String fenceKey) {
