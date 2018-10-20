@@ -19,6 +19,11 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.esri.arcgisruntime.geometry.Point;
+import com.esri.arcgisruntime.mapping.ArcGISMap;
+import com.esri.arcgisruntime.mapping.Basemap;
+import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
+import com.esri.arcgisruntime.mapping.view.MapView;
 import com.google.android.gms.awareness.Awareness;
 import com.google.android.gms.awareness.FenceApi;
 import com.google.android.gms.awareness.fence.AwarenessFence;
@@ -39,10 +44,19 @@ import java.util.Arrays;
 public class MainActivity extends AppCompatActivity {
 
     // API related objects
+    //    - Awareness API -
     private LocationBroadcastReceiver fenceReceiver;
     private PendingIntent mFencePendingIntent;
     private GoogleApiClient mGoogleApiClient;
     private static final String TAG = "MainActivity";
+    //    - ESRI Routing -
+    private MapView mMapView;
+    private GraphicsOverlay mGraphicsOverlay;
+    private Point mStart;
+    private Point mEnd;
+    private double lat;
+    private double lon;
+
 
     // Constants
     private static final String FENCE_RECEIVER_ACTION = "FENCE_RECEIVE";
@@ -54,8 +68,10 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Set widgets
         setContentView(R.layout.activity_main);
         status = findViewById(R.id.status);
+        mMapView = findViewById(R.id.mMapView);
 
         // Create context and api client instance
         android.content.Context context = getApplicationContext();
@@ -63,6 +79,19 @@ public class MainActivity extends AppCompatActivity {
                 .addApi(Awareness.API)
                 .build();
         mGoogleApiClient.connect();
+
+        // Fence location
+        fenceReceiver = new LocationBroadcastReceiver();
+        Intent intent = new Intent(FENCE_RECEIVER_ACTION);
+        mFencePendingIntent = PendingIntent.getBroadcast(MainActivity.this,
+                10001,
+                intent,
+                0);
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
 
         // Check permissions
         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_CALENDAR)
@@ -83,21 +112,12 @@ public class MainActivity extends AppCompatActivity {
                         }
                         Location location = locationResult.getLocation();
                         Log.i(TAG, "Lat: " + location.getLatitude() + ", Lon: " + location.getLongitude());
+                        lat = location.getLatitude();
+                        lon = location.getLongitude();
+                        setupMap();
                     }
                 });
 
-        // Fence location
-        fenceReceiver = new LocationBroadcastReceiver();
-        Intent intent = new Intent(FENCE_RECEIVER_ACTION);
-        mFencePendingIntent = PendingIntent.getBroadcast(MainActivity.this,
-                10001,
-                intent,
-                0);
-    }
-
-    @Override
-    protected void onStart() {
-        super.onStart();
         registerFence();
         registerReceiver(fenceReceiver, new IntentFilter(FENCE_RECEIVER_ACTION));
     }
@@ -107,6 +127,17 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
         unregisterFence();
         unregisterReceiver(fenceReceiver);
+    }
+
+    private void setupMap() {
+        if (mMapView != null) {
+            Basemap.Type basemapType = Basemap.Type.NAVIGATION_VECTOR;
+            double latitude = lat;
+            double longitude = lon;
+            int levelOfDetail = 17;
+            ArcGISMap map = new ArcGISMap(basemapType, latitude, longitude, levelOfDetail);
+            mMapView.setMap(map);
+        }
     }
 
     protected void registerFence() {
