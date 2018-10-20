@@ -90,6 +90,7 @@ public class MainActivity extends AppCompatActivity {
     // Constants
     private static final String FENCE_RECEIVER_ACTION = "FENCE_RECEIVE";
     private static final int PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 940;
+    private static final int PERMISSION_REQUEST_SEND_SMS = 941;
 
     // Widgets
     private TextView status;
@@ -137,6 +138,14 @@ public class MainActivity extends AppCompatActivity {
                 10001,
                 intent,
                 0);
+
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.SEND_SMS)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{Manifest.permission.SEND_SMS},
+                    PERMISSION_REQUEST_SEND_SMS);
+        }
+
         try {
             SmsManager smsManager = SmsManager.getDefault();
             smsManager.sendTextMessage("+17707571566", null, "wya", null, null);
