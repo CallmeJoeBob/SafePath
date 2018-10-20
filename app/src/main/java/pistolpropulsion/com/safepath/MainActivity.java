@@ -260,10 +260,10 @@ public class MainActivity extends AppCompatActivity {
             if (TextUtils.equals(fenceState.getFenceKey(), "loc")) {
                 switch (fenceState.getCurrentState()) {
                     case FenceState.TRUE:
-                        status.setText("You left.");
+                        status.setText("You left me, Joel!");
                         break;
                     case FenceState.FALSE:
-                        status.setText("You didn't leave.");
+                        status.setText("You didn't leave...");
                         break;
                     case FenceState.UNKNOWN:
                         status.setText("Idk bro.");
