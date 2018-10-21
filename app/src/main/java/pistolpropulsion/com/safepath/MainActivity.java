@@ -298,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupMap() {
         if (mMapView != null) {
-            Basemap.Type basemapType = Basemap.Type.NAVIGATION_VECTOR;
+            Basemap.Type basemapType = Basemap.Type.OCEANS;
             double latitude = lat;
             double longitude = lon;
             int levelOfDetail = 17;
@@ -325,7 +325,7 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<AwarenessFence> fences = new ArrayList<>();
         for (Point iteratePoint : iteratePoints) {
             PointsList.add(iteratePoint);
-            setMapMarker(iteratePoint, SimpleMarkerSymbol.Style.CIRCLE, Color.rgb(0,0,0), Color.BLACK);
+            //setMapMarker(iteratePoint, SimpleMarkerSymbol.Style.CIRCLE, Color.rgb(0,0,0), Color.BLACK); -Points visualization
             AwarenessFence locationFence = AwarenessFence.not(LocationFence.in(iteratePoint.getY(), iteratePoint.getX(), 50, 1000));
             fences.add(locationFence);
         }
