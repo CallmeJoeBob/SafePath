@@ -490,6 +490,7 @@ public class MainActivity extends AppCompatActivity {
     public void logout(){
         FirebaseAuth.getInstance().signOut();
         Intent signintent = new Intent(MainActivity.this, LoginActivity.class);
+        Toast.makeText(getApplicationContext(), "Succesfully Logged-Out", Toast.LENGTH_LONG).show();
         startActivity(signintent);
     }
 
@@ -574,7 +575,7 @@ public class MainActivity extends AppCompatActivity {
                             UserFirebase user2 = dataSnapshot.getValue(UserFirebase.class);
                             String datapincode = user2.getPinCode();
                             if (datapincode.equals(pincode.getText().toString())) {
-                                Toast.makeText(getApplicationContext(), "Cheers", Toast.LENGTH_LONG).show();
+                                //Toast.makeText(getApplicationContext(), "Cheers", Toast.LENGTH_LONG).show();
                                 //SmsManager smsManager = SmsManager.getDefault();
                                 //smsManager.sendTextMessage("+17066146514", null, "safe", null, null);
                                 pw.dismiss();
