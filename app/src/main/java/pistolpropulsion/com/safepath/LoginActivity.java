@@ -1,6 +1,7 @@
 package pistolpropulsion.com.safepath;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -55,17 +56,15 @@ public class LoginActivity extends AppCompatActivity {
                     createAcct();
                 }
             });
-            if (ContextCompat.checkSelfPermission(LoginActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(LoginActivity.this,
-                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
-                        PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
-            }
-            if (ContextCompat.checkSelfPermission(LoginActivity.this, Manifest.permission.SEND_SMS)
-                    != PackageManager.PERMISSION_GRANTED) {
-                ActivityCompat.requestPermissions(LoginActivity.this,
-                        new String[]{Manifest.permission.SEND_SMS},
-                        PERMISSION_REQUEST_SEND_SMS);
+
+            int PERMISSION_ALL = 1;
+            String[] PERMISSIONS = {
+                    android.Manifest.permission.ACCESS_FINE_LOCATION,
+                    android.Manifest.permission.SEND_SMS
+            };
+
+            if(!hasPermissions(this, PERMISSIONS)){
+                ActivityCompat.requestPermissions(this, PERMISSIONS, PERMISSION_ALL);
             }
         }
 
@@ -107,4 +106,14 @@ public class LoginActivity extends AppCompatActivity {
                 startActivity(signintent);
             }
         }
+    public static boolean hasPermissions(Context context, String... permissions) {
+        if (context != null && permissions != null) {
+            for (String permission : permissions) {
+                if (ActivityCompat.checkSelfPermission(context, permission) != PackageManager.PERMISSION_GRANTED) {
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
 }

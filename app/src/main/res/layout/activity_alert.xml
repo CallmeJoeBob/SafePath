@@ -21,7 +21,7 @@
             android:id="@+id/imageView3"
             android:layout_width="371dp"
             android:layout_height="369dp"
-            app:srcCompat="@color/place_autocomplete_prediction_secondary_text"
+            app:srcCompat="@android:color/holo_blue_dark"
             tools:layout_editor_absoluteX="0dp"
             tools:layout_editor_absoluteY="0dp" />
 
@@ -35,7 +35,7 @@
             android:layout_marginTop="8dp"
             android:text="You are outside the safe box.  Enter your pincode to confirm you are not in danger."
             android:textAlignment="center"
-            android:textColor="@android:color/holo_red_dark"
+            android:textColor="@android:color/background_light"
             android:textSize="24sp"
             app:layout_constraintBottom_toTopOf="@+id/Password"
             app:layout_constraintEnd_toEndOf="parent"
@@ -51,7 +51,8 @@
             android:layout_marginStart="8dp"
             android:ems="10"
             android:hint="@string/pin"
-            android:inputType="textPassword"
+            android:inputType="number"
+            android:maxLength="4"
             app:layout_constraintBottom_toTopOf="@+id/Confirmbutton"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
