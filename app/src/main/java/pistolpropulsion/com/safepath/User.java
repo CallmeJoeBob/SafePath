@@ -13,6 +13,7 @@ public class User {
         name = na;
         pincode = pc;
     }
+
     public String getName() { return name; }
     public String getEmail() { return email; }
     public String getContact() { return ec; }

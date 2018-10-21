@@ -137,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
                 return super.onSingleTapConfirmed(e);
             }
         });
+        //Toast.makeText(getApplicationContext(), "Unable to find location", Toast.LENGTH_LONG).show();
         logout_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -165,11 +166,17 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
 
         // Check permissions
-        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_CALENDAR)
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(MainActivity.this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
+        }
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.SEND_SMS)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{Manifest.permission.SEND_SMS},
+                    PERMISSION_REQUEST_SEND_SMS);
         }
 
         //Getting current location
@@ -179,6 +186,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onResult(@NonNull LocationResult locationResult) {
                         if (!locationResult.getStatus().isSuccess()) {
                             Log.e(TAG, "Could not get location.");
+                            Toast.makeText(getApplicationContext(), "Unable to find location", Toast.LENGTH_LONG).show();
                             return;
                         }
                         Location location = locationResult.getLocation();
