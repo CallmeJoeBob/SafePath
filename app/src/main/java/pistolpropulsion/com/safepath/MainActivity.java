@@ -17,11 +17,15 @@ import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -66,6 +70,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -101,6 +106,11 @@ public class MainActivity extends AppCompatActivity {
     // Widgets
     private TextView status;
 
+    //popup stuff
+    private Button imok;
+    private EditText password;
+    private FirebaseAuth siAuth;
+
 
     // SMS
     private FirebaseAuth mAuth;
@@ -121,6 +131,11 @@ public class MainActivity extends AppCompatActivity {
         mGraphicsOverlay = new GraphicsOverlay();
         mMapView.getGraphicsOverlays().add(mGraphicsOverlay);
         logout_button = findViewById(R.id.LogoutButton);
+
+        imok = findViewById(R.id.Confirmbutton);
+        password = findViewById(R.id.Password);
+        siAuth = FirebaseAuth.getInstance();
+
         mMapView.setOnTouchListener(new DefaultMapViewOnTouchListener(this, mMapView) {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -132,6 +147,7 @@ public class MainActivity extends AppCompatActivity {
                 return super.onSingleTapConfirmed(e);
             }
         });
+        //Toast.makeText(getApplicationContext(), "Unable to find location", Toast.LENGTH_LONG).show();
         logout_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -160,11 +176,17 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
 
         // Check permissions
-        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_CALENDAR)
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(MainActivity.this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
+        }
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.SEND_SMS)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{Manifest.permission.SEND_SMS},
+                    PERMISSION_REQUEST_SEND_SMS);
         }
 
         //Getting current location
@@ -174,6 +196,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onResult(@NonNull LocationResult locationResult) {
                         if (!locationResult.getStatus().isSuccess()) {
                             Log.e(TAG, "Could not get location.");
+                            Toast.makeText(getApplicationContext(), "Unable to find location", Toast.LENGTH_LONG).show();
                             return;
                         }
                         Location location = locationResult.getLocation();
@@ -315,6 +338,8 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         try {
+                            setContentView(R.layout.activity_alert);
+                            showPopup(siAuth.getCurrentUser());
                             sendMessage();
                             Toast.makeText(getApplicationContext(), "Alert Sent",
                                     Toast.LENGTH_LONG).show();
@@ -433,5 +458,21 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private PopupWindow pw;
+    private void showPopup(FirebaseUser user) {
+        try {
+            // We need to get the instance of the LayoutInflater
+            LayoutInflater inflater = (LayoutInflater) MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View layout = inflater.inflate(R.layout.activity_alert,
+                    (ViewGroup) findViewById(R.id.Alertpopup));
+            pw = new PopupWindow(layout, 300, 370, true);
+            pw.showAtLocation(layout, Gravity.CENTER, 0, 0);
+
+            //check if password entered is the same as the user's password
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
