@@ -140,8 +140,8 @@ public class MainActivity extends AppCompatActivity {
         mGraphicsOverlay = new GraphicsOverlay();
         mMapView.getGraphicsOverlays().add(mGraphicsOverlay);
         logout_button = findViewById(R.id.LogoutButton);
-
         end_trip_button = findViewById(R.id.EndTripButton);
+        
         imok = findViewById(R.id.Confirmbutton);
         pincode = findViewById(R.id.Password);
 
@@ -170,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
         end_trip_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //sendMessage("");
+                sendSafeMessage();
             }
         });
 
@@ -356,7 +356,44 @@ public class MainActivity extends AppCompatActivity {
             }
         });
     }
+    public void sendMessage(String message) {
+        final SmsManager smsManager = SmsManager.getDefault();
+        final String message2 = message;
+        String uid = mAuth.getCurrentUser().getUid(); // gets the user ID
+        DatabaseReference userRef = mDatabase.child("users").child((mAuth.getCurrentUser() != null) ? uid : null);
+        userRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                UserFirebase fetchedUser = dataSnapshot.getValue(UserFirebase.class);
+                String contact = "+1" + fetchedUser.getContact();
 
+                smsManager.sendTextMessage(contact, null, message2, null, null);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+    }
+    public void sendSafeMessage() {
+        final SmsManager smsManager = SmsManager.getDefault();
+        String uid = mAuth.getCurrentUser().getUid(); // gets the user ID
+        DatabaseReference userRef = mDatabase.child("users").child((mAuth.getCurrentUser() != null) ? uid : null);
+        userRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                UserFirebase fetchedUser = dataSnapshot.getValue(UserFirebase.class);
+                String contact = "+1" + fetchedUser.getContact();
+                String name = fetchedUser.getName();
+//                    status.setText(contact);
+                smsManager.sendTextMessage(contact, null, name + " has arrived safely.", null, null);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+    }
     // Listener for the geofence
     class LocationBroadcastReceiver extends BroadcastReceiver {
 
@@ -420,25 +457,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
-        public void sendMessage(String message) {
-            final SmsManager smsManager = SmsManager.getDefault();
-            final String message2 = message;
-            String uid = mAuth.getCurrentUser().getUid(); // gets the user ID
-            DatabaseReference userRef = mDatabase.child("users").child((mAuth.getCurrentUser() != null) ? uid : null);
-            userRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    UserFirebase fetchedUser = dataSnapshot.getValue(UserFirebase.class);
-                    String contact = "+1" + fetchedUser.getContact();
 
-                    smsManager.sendTextMessage(contact, null, message2, null, null);
-                }
-
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                }
-            });
-        }
 
     }
 
