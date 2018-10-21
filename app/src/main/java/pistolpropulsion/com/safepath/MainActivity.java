@@ -144,7 +144,7 @@ public class MainActivity extends AppCompatActivity {
         mMapView.getGraphicsOverlays().add(mGraphicsOverlay);
         logout_button = findViewById(R.id.LogoutButton);
         end_trip_button = findViewById(R.id.EndTripButton);
-        
+
         imok = findViewById(R.id.Confirmbutton);
         pincode = findViewById(R.id.Password);
 
@@ -173,7 +173,15 @@ public class MainActivity extends AppCompatActivity {
         end_trip_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                sendSafeMessage();
+
+                try {
+                    //setContentView(R.layout.activity_alert);
+                    showPopupFinish(siAuth.getCurrentUser());
+                } catch (Exception ex) {
+                    Toast.makeText(getApplicationContext(),ex.getMessage(),
+                            Toast.LENGTH_LONG).show();
+                    ex.printStackTrace();
+                }
             }
         });
 
@@ -192,6 +200,8 @@ public class MainActivity extends AppCompatActivity {
                 10001,
                 intent,
                 0);
+
+        status.setText("Click on the map above to set your start point.");
     }
 
     @Override
@@ -261,16 +271,17 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setStartMarker(Point location) {
-        mGraphicsOverlay.getGraphics().clear();
         setMapMarker(location, SimpleMarkerSymbol.Style.DIAMOND, Color.rgb(226, 119, 40), Color.BLUE);
         mStart = location;
         mEnd = null;
+        status.setText("Click on the map above to set your end point.");
     }
 
     private void setEndMarker(Point location) {
         setMapMarker(location, SimpleMarkerSymbol.Style.SQUARE, Color.rgb(40, 119, 226), Color.RED);
         mEnd = location;
         findRoute();
+        status.setText("");
 
     }
 
@@ -281,10 +292,8 @@ public class MainActivity extends AppCompatActivity {
         } else if (mEnd == null) {
             // End is not set, set it to the tapped location then find the route
             setEndMarker(location);
-        } else {
-            // Both locations are set; re-set the start to the tapped location
-            setStartMarker(location);
         }
+        // Both are set means you do nothing untill it's cleared.
     }
 
     private void setupMap() {
@@ -337,8 +346,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
-
-        status.setText(String.valueOf(PointsList.size()));
     }
 
     // Help clear the fences when the app finishes
@@ -388,7 +395,6 @@ public class MainActivity extends AppCompatActivity {
                 UserFirebase fetchedUser = dataSnapshot.getValue(UserFirebase.class);
                 String contact = "+1" + fetchedUser.getContact();
                 String name = fetchedUser.getName();
-//                    status.setText(contact);
                 smsManager.sendTextMessage(contact, null, name + " has arrived safely.", null, null);
             }
 
@@ -428,7 +434,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         break;
                     case FenceState.FALSE:
-                        status.setText("Stay Safe!");
+                        status.setText("You're in the area. Stay Safe!");
                         break;
                     case FenceState.UNKNOWN:
                         status.setText("Service Unable to Locate Geofence.");
@@ -436,7 +442,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         }
-
     }
 
     public void sendMissingMessage() {
@@ -487,6 +492,7 @@ public class MainActivity extends AppCompatActivity {
     public void logout(){
         FirebaseAuth.getInstance().signOut();
         Intent signintent = new Intent(MainActivity.this, LoginActivity.class);
+        Toast.makeText(getApplicationContext(), "Succesfully Logged-Out", Toast.LENGTH_LONG).show();
         startActivity(signintent);
     }
 
@@ -579,13 +585,68 @@ public class MainActivity extends AppCompatActivity {
                             UserFirebase user2 = dataSnapshot.getValue(UserFirebase.class);
                             String datapincode = user2.getPinCode();
                             if (datapincode.equals(pincode.getText().toString())) {
-                                Toast.makeText(getApplicationContext(), "Cheers", Toast.LENGTH_LONG).show();
+                                //Toast.makeText(getApplicationContext(), "Cheers", Toast.LENGTH_LONG).show();
                                 //SmsManager smsManager = SmsManager.getDefault();
                                 //smsManager.sendTextMessage("+17066146514", null, "safe", null, null);
                                 run = false;
                                 pw.dismiss();
                             } else {
                                 Toast.makeText(getApplicationContext(), "Incorrect PIN", Toast.LENGTH_LONG).show();
+                            }
+                        }
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {}
+                    });
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private PopupWindow pw_finish;
+    private void showPopupFinish(FirebaseUser user) {
+        try {
+            // We need to get the instance of the LayoutInflater
+            LayoutInflater inflater = (LayoutInflater) MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View layout = inflater.inflate(R.layout.activity_finish,
+                    (ViewGroup) findViewById(R.id.Alertpopup));
+
+            imok = layout.findViewById(R.id.Confirmbutton);
+            pincode = layout.findViewById(R.id.Password);
+
+            pw = new PopupWindow(layout, 300, 370, true);
+            pw.setContentView(layout);
+            pw.setWidth(ConstraintLayout.LayoutParams.WRAP_CONTENT);
+            pw.setHeight(ConstraintLayout.LayoutParams.WRAP_CONTENT);
+            pw.setFocusable(true);
+            pw.showAtLocation(layout, Gravity.CENTER, 0, 0);
+
+            //check if pincode entered is the same as the user's password
+            imok.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String uid = mAuth.getCurrentUser().getUid();
+                    DatabaseReference user = mDatabase.child("users").child((mAuth.getCurrentUser() != null) ? uid : null);
+                    user.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            UserFirebase user2 = dataSnapshot.getValue(UserFirebase.class);
+                            String datapincode = user2.getPinCode();
+                            if (datapincode.equals(pincode.getText().toString())) {
+                                Toast.makeText(getApplicationContext(), "Stay Safe! You're in the clear.", Toast.LENGTH_LONG).show();
+                                sendSafeMessage();
+                                try {
+                                    unregisterFence();
+                                } catch (Exception e) {
+                                    Toast.makeText(getApplicationContext(), "There are no trips in progress.", Toast.LENGTH_LONG).show();
+                                }
+
+                                mGraphicsOverlay.getGraphics().clear();
+                                mStart = null;
+                                mEnd = null;
+                                status.setText("Click on the map above to set your start point.");
+                                pw.dismiss();
                             }
                         }
                         @Override
