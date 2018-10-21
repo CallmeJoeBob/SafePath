@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
     private double lon;
     private Button logout_button;
     private Polyline currentPath;
-
+    private Button end_trip_button;
 
     // Constants
     private static final String FENCE_RECEIVER_ACTION = "FENCE_RECEIVE";
@@ -139,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
         mGraphicsOverlay = new GraphicsOverlay();
         mMapView.getGraphicsOverlays().add(mGraphicsOverlay);
         logout_button = findViewById(R.id.LogoutButton);
-
+        end_trip_button = findViewById(R.id.EndTripButton);
         imok = findViewById(R.id.Confirmbutton);
         pincode = findViewById(R.id.Password);
         siAuth = FirebaseAuth.getInstance();
@@ -161,6 +161,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 logout();
+            }
+        });
+
+        end_trip_button.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                //sendMessage("");
             }
         });
 
@@ -220,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
         Point initialLocation = new Point(lon,lat);
-        setStartMarker(initialLocation);
+        //setStartMarker(initialLocation);
     }
 
     @Override
@@ -363,17 +370,18 @@ public class MainActivity extends AppCompatActivity {
                                     PERMISSION_REQUEST_SEND_SMS);
                         }
 
+
                         try {
                             setContentView(R.layout.activity_alert);
                             showPopup(siAuth.getCurrentUser());
-                            sendMessage();
+                            sendMissingMessage();
                             Toast.makeText(getApplicationContext(), "Alert Sent",
                                     Toast.LENGTH_LONG).show();
                         } catch (Exception ex) {
                             Toast.makeText(getApplicationContext(),ex.getMessage(),
                                     Toast.LENGTH_LONG).show();
                             ex.printStackTrace();
-                            sendMessage();
+                            sendMissingMessage();
                         }
                         break;
                     case FenceState.FALSE:
@@ -386,10 +394,10 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        public void sendMessage() {
+        public void sendMissingMessage() {
             final SmsManager smsManager = SmsManager.getDefault();
-            String Uid = mAuth.getCurrentUser().getUid(); // gets the user ID
-            DatabaseReference userRef = mDatabase.child("users").child((mAuth.getCurrentUser() != null) ? mAuth.getCurrentUser().getUid() : null);
+            String uid = mAuth.getCurrentUser().getUid(); // gets the user ID
+            DatabaseReference userRef = mDatabase.child("users").child((mAuth.getCurrentUser() != null) ? uid : null);
             userRef.addValueEventListener(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
@@ -398,6 +406,25 @@ public class MainActivity extends AppCompatActivity {
                     String name = fetchedUser.getName();
 //                    status.setText(contact);
                     smsManager.sendTextMessage(contact, null, name + " is missing!", null, null);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                }
+            });
+        }
+        public void sendMessage(String message) {
+            final SmsManager smsManager = SmsManager.getDefault();
+            final String message2 = message;
+            String uid = mAuth.getCurrentUser().getUid(); // gets the user ID
+            DatabaseReference userRef = mDatabase.child("users").child((mAuth.getCurrentUser() != null) ? uid : null);
+            userRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    UserFirebase fetchedUser = dataSnapshot.getValue(UserFirebase.class);
+                    String contact = "+1" + fetchedUser.getContact();
+
+                    smsManager.sendTextMessage(contact, null, message2, null, null);
                 }
 
                 @Override
