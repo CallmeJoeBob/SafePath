@@ -171,6 +171,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 sendSafeMessage();
+                try {
+                    unregisterFence();
+                } catch (Exception e) {
+                    Toast.makeText(getApplicationContext(), "There are no trips in progress.", Toast.LENGTH_LONG).show();
+                }
+
+                mGraphicsOverlay.getGraphics().clear();
+                mStart = null;
+                mEnd = null;
+
             }
         });
 
@@ -258,7 +268,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setStartMarker(Point location) {
-        mGraphicsOverlay.getGraphics().clear();
         setMapMarker(location, SimpleMarkerSymbol.Style.DIAMOND, Color.rgb(226, 119, 40), Color.BLUE);
         mStart = location;
         mEnd = null;
@@ -278,10 +287,8 @@ public class MainActivity extends AppCompatActivity {
         } else if (mEnd == null) {
             // End is not set, set it to the tapped location then find the route
             setEndMarker(location);
-        } else {
-            // Both locations are set; re-set the start to the tapped location
-            setStartMarker(location);
         }
+        // Both are set means you do nothing untill it's cleared.
     }
 
     private void setupMap() {
