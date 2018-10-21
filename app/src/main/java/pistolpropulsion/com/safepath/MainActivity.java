@@ -93,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
     private PendingIntent mFencePendingIntent;
     private GoogleApiClient mGoogleApiClient;
     private static final String TAG = "MainActivity";
+    AwarenessFence total;
     //    - ESRI Routing -
     private MapView mMapView;
     LocationDisplay display;
@@ -217,6 +218,8 @@ public class MainActivity extends AppCompatActivity {
                         setupOauth();
                     }
                 });
+        Point initialLocation = new Point(lon,lat);
+        setStartMarker(initialLocation);
     }
 
     @Override
@@ -291,20 +294,20 @@ public class MainActivity extends AppCompatActivity {
 
         Iterable<Point> iteratePoints = iterator.getPartsAsPoints();
         ArrayList<Point> PointsList = new ArrayList<>();
+        int ID = 0;
+        ArrayList<AwarenessFence> fences = new ArrayList<>();
         for (Point iteratePoint : iteratePoints) {
             PointsList.add(iteratePoint);
             setMapMarker(iteratePoint, SimpleMarkerSymbol.Style.CIRCLE, Color.rgb(0,0,0), Color.BLACK);
-
+            AwarenessFence locationFence = AwarenessFence.not(LocationFence.in(iteratePoint.getY(), iteratePoint.getX(), 50, 1000));
+            fences.add(locationFence);
         }
 
-        status.setText(String.valueOf(PointsList.size()));
-
-
-        AwarenessFence locationFence = AwarenessFence.not(LocationFence.in(33.7765673, -84.3960469, 10, 100));
+        total = AwarenessFence.and(fences);
         Awareness.FenceApi.updateFences(
                 mGoogleApiClient,
                 new FenceUpdateRequest.Builder()
-                        .addFence("loc", locationFence, mFencePendingIntent)
+                        .addFence("pathFence", total, mFencePendingIntent)
                         .build())
                 .setResultCallback(new ResultCallback<Status>() {
                     @Override
@@ -316,6 +319,8 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
+
+        status.setText(String.valueOf(PointsList.size()));
     }
 
     // Help clear the fences when the app finishes
@@ -323,16 +328,16 @@ public class MainActivity extends AppCompatActivity {
         Awareness.FenceApi.updateFences(
                 mGoogleApiClient,
                 new FenceUpdateRequest.Builder()
-                        .removeFence("loc")
+                        .removeFence("pathFence")
                         .build()).setResultCallback(new ResultCallbacks<Status>() {
             @Override
             public void onSuccess(@NonNull Status status) {
-                Log.i(TAG, "Fence " + "loc" + " successfully removed.");
+                Log.i(TAG, "Fence " + "pathFence" + " successfully removed.");
             }
 
             @Override
             public void onFailure(@NonNull Status status) {
-                Log.i(TAG, "Fence " + "loc" + " could NOT be removed.");
+                Log.i(TAG, "Fence " + "pathFence" + " could NOT be removed.");
             }
         });
     }
@@ -346,10 +351,10 @@ public class MainActivity extends AppCompatActivity {
 
             Log.d(TAG, "Fence Receiver Received");
 
-            if (TextUtils.equals(fenceState.getFenceKey(), "loc")) {
+            if (TextUtils.equals(fenceState.getFenceKey(), "pathFence")) {
                 switch (fenceState.getCurrentState()) {
                     case FenceState.TRUE:
-                        status.setText("You left me, Joel!");
+                        status.setText("You left the area!");
                         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.SEND_SMS)
                                 != PackageManager.PERMISSION_GRANTED) {
                             ActivityCompat.requestPermissions(MainActivity.this,

@@ -7,4 +7,6 @@
     <string name="phone">Emergency Contact #</string>
     <string name="create_account">Create Account</string>
     <string name="logout">Logout</string>
+    <string name="pin">PinCode</string>
+
 </resources>
