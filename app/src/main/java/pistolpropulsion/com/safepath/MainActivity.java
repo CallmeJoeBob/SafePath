@@ -451,6 +451,7 @@ public class MainActivity extends AppCompatActivity {
                 public void onClick(View view) {
                     String databasepincode = mdatabase.child(siAuth.getCurrentUser().getUid()).child("contact").toString();
                     if(pincode.getText().toString().equals(databasepincode)) {
+                        Toast.makeText(getApplicationContext(), "Cheers", Toast.LENGTH_LONG).show();
                         SmsManager smsManager = SmsManager.getDefault();
                         smsManager.sendTextMessage("+17066146514", null, "safe", null, null);
                     }
