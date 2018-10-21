@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -15,8 +16,11 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import static android.content.ContentValues.TAG;
 
@@ -98,6 +102,7 @@ public class CreateAccountActivity extends AppCompatActivity {
                             mDatabase.child("users").child(
                                     (user != null) ? user.getUid() : null).
                                     setValue(userObject);
+                            sendSignUpMessage();
                             updateUI(user);
                         } else {
                             // If sign in fails, display a message to the user.
@@ -111,5 +116,25 @@ public class CreateAccountActivity extends AppCompatActivity {
                     }
                 });
 
+    }
+    public void sendSignUpMessage() {
+        final SmsManager smsManager = SmsManager.getDefault();
+        String uid = mAuth.getCurrentUser().getUid(); // gets the user ID
+        DatabaseReference userRef = mDatabase.child("users").child((mAuth.getCurrentUser() != null) ? uid : null);
+        userRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                UserFirebase fetchedUser = dataSnapshot.getValue(UserFirebase.class);
+                String contact = "+1" + fetchedUser.getContact();
+                String name = fetchedUser.getName();
+                String email = fetchedUser.getEmail();
+//                    status.setText(contact);
+                smsManager.sendTextMessage(contact, null, name + " has added you as their emergency contact on SafePath. Their email is: " + email + ". To learn more, go to https://github.com/CallmeJoeBob/SafePath", null, null);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
     }
 }
