@@ -52,6 +52,7 @@ tools:context="pistolpropulsion.com.safepath.AlertActivity">
         android:ems="10"
         android:hint="@string/pin"
         android:inputType="textPassword"
+        android:maxLength="4"
         app:layout_constraintBottom_toTopOf="@+id/Confirmbutton"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />

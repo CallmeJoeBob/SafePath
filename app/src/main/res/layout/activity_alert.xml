@@ -51,7 +51,7 @@
             android:layout_marginStart="8dp"
             android:ems="10"
             android:hint="@string/pin"
-            android:inputType="number"
+            android:inputType="textPassword"
             android:maxLength="4"
             app:layout_constraintBottom_toTopOf="@+id/Confirmbutton"
             app:layout_constraintEnd_toEndOf="parent"
