@@ -127,6 +127,7 @@ public class MainActivity extends AppCompatActivity {
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
     private boolean run = false;
+    private boolean hasRun = false;
 
 
     @Override
@@ -455,10 +456,11 @@ public class MainActivity extends AppCompatActivity {
                 String contact = "+1" + fetchedUser.getContact();
                 String name = fetchedUser.getName();
 //                    status.setText(contact);
-
-                smsManager.sendTextMessage(contact, null, name + " is no longer in their zone and has not responded.", null, null);
-                Toast.makeText(getApplicationContext(), "Alert Sent",
-                        Toast.LENGTH_LONG).show();
+                if (run) {
+                    smsManager.sendTextMessage(contact, null, name + " is no longer in their zone and has not responded.", null, null);
+                    Toast.makeText(getApplicationContext(), "Alert Sent",
+                            Toast.LENGTH_LONG).show();
+                }
 
             }
 
@@ -550,10 +552,12 @@ public class MainActivity extends AppCompatActivity {
     private PopupWindow pw;
     private void showPopup(FirebaseUser user) {
         run = true;
+        hasRun = false;
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {   @Override
         public void run() {
             sendMissingMessage();
+            hasRun = true;
         }
         }, 10000);
         try {
@@ -585,11 +589,18 @@ public class MainActivity extends AppCompatActivity {
                             UserFirebase user2 = dataSnapshot.getValue(UserFirebase.class);
                             String datapincode = user2.getPinCode();
                             if (datapincode.equals(pincode.getText().toString())) {
-                                sendRespondedMessage();
+                                if (hasRun) {
+                                    status.setText("FALSE");
+                                    sendRespondedMessage();
+                                } else {
+                                    status.setText("TRUE");
+                                    hasRun = true;
+                                }
+                                run = false;
                                 //Toast.makeText(getApplicationContext(), "Cheers", Toast.LENGTH_LONG).show();
                                 //SmsManager smsManager = SmsManager.getDefault();
                                 //smsManager.sendTextMessage("+17066146514", null, "safe", null, null);
-                                run = false;
+
                                 pw.dismiss();
                             } else {
                                 Toast.makeText(getApplicationContext(), "Incorrect PIN", Toast.LENGTH_LONG).show();
@@ -615,11 +626,9 @@ public class MainActivity extends AppCompatActivity {
                 String contact = "+1" + fetchedUser.getContact();
                 String name = fetchedUser.getName();
 //                    status.setText(contact);
-                if (run) {
-                    smsManager.sendTextMessage(contact, null, name + " has confirmed their safety.", null, null);
-                    Toast.makeText(getApplicationContext(), "Alert Sent",
-                            Toast.LENGTH_LONG).show();
-                }
+                smsManager.sendTextMessage(contact, null, name + " has now responded and confirmed their safety.", null, null);
+                Toast.makeText(getApplicationContext(), "Alert Sent",
+                        Toast.LENGTH_LONG).show();
             }
 
             @Override
