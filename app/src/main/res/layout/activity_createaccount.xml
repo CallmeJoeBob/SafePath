@@ -47,7 +47,7 @@
         android:ems="10"
         android:fontFamily="@font/anaheim"
         android:inputType="phone"
-        android:text="@string/phone"
+        android:text="Emergency Contact Number"
         android:textSize="24sp"
         app:layout_constraintBottom_toTopOf="@+id/EmailInput"
         app:layout_constraintEnd_toEndOf="parent"
