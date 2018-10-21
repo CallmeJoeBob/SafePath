@@ -39,6 +39,7 @@
         android:layout_marginTop="8dp"
         android:background="@drawable/round_button"
         android:text="@string/logout"
+        android:textColor="#ffffff"
         app:layout_constraintBottom_toTopOf="@+id/status"
         app:layout_constraintEnd_toEndOf="@+id/mMapView"
         app:layout_constraintTop_toBottomOf="@+id/mMapView" />
@@ -53,6 +54,7 @@
         android:layout_marginTop="8dp"
         android:background="@drawable/round_button"
         android:text="End Trip"
+        android:textColor="#ffffff"
         app:layout_constraintBottom_toTopOf="@+id/status"
         app:layout_constraintStart_toStartOf="@+id/mMapView"
         app:layout_constraintTop_toBottomOf="@+id/mMapView" />
