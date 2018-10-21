@@ -17,11 +17,15 @@ import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -63,6 +67,14 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.ResultCallbacks;
 import com.google.android.gms.common.api.Status;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -100,10 +112,25 @@ public class MainActivity extends AppCompatActivity {
     // Widgets
     private TextView status;
 
+    //popup stuff
+    private Button imok;
+    private EditText pincode;
+    private FirebaseAuth siAuth;
+    private DatabaseReference mdatabase;
+
+
+    // SMS
+    private FirebaseAuth mAuth;
+    private DatabaseReference mDatabase;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Set SMS Shenanigans
+        mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
         // Set widgets
         setContentView(R.layout.activity_main);
         status = findViewById(R.id.status);
@@ -111,6 +138,12 @@ public class MainActivity extends AppCompatActivity {
         mGraphicsOverlay = new GraphicsOverlay();
         mMapView.getGraphicsOverlays().add(mGraphicsOverlay);
         logout_button = findViewById(R.id.LogoutButton);
+
+        imok = findViewById(R.id.Confirmbutton);
+        pincode = findViewById(R.id.Password);
+        siAuth = FirebaseAuth.getInstance();
+        mdatabase = FirebaseDatabase.getInstance().getReference();
+
         mMapView.setOnTouchListener(new DefaultMapViewOnTouchListener(this, mMapView) {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -122,6 +155,7 @@ public class MainActivity extends AppCompatActivity {
                 return super.onSingleTapConfirmed(e);
             }
         });
+        //Toast.makeText(getApplicationContext(), "Unable to find location", Toast.LENGTH_LONG).show();
         logout_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -151,11 +185,17 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
 
         // Check permissions
-        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.WRITE_CALENDAR)
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(MainActivity.this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
+        }
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.SEND_SMS)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this,
+                    new String[]{Manifest.permission.SEND_SMS},
+                    PERMISSION_REQUEST_SEND_SMS);
         }
 
         //Getting current location
@@ -165,6 +205,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onResult(@NonNull LocationResult locationResult) {
                         if (!locationResult.getStatus().isSuccess()) {
                             Log.e(TAG, "Could not get location.");
+                            Toast.makeText(getApplicationContext(), "Unable to find location", Toast.LENGTH_LONG).show();
                             return;
                         }
                         Location location = locationResult.getLocation();
@@ -318,8 +359,10 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         try {
+                            setContentView(R.layout.activity_alert);
+                            showPopup(siAuth.getCurrentUser());
                             sendMessage();
-                            Toast.makeText(getApplicationContext(), "Message Sent",
+                            Toast.makeText(getApplicationContext(), "Alert Sent",
                                     Toast.LENGTH_LONG).show();
                         } catch (Exception ex) {
                             Toast.makeText(getApplicationContext(),ex.getMessage(),
@@ -329,18 +372,33 @@ public class MainActivity extends AppCompatActivity {
                         }
                         break;
                     case FenceState.FALSE:
-                        status.setText("You didn't leave...");
+                        status.setText("Stay Safe!");
                         break;
                     case FenceState.UNKNOWN:
-                        status.setText("Idk bro.");
+                        status.setText("Service Unable to Locate Geofence.");
                         break;
                 }
             }
         }
 
         public void sendMessage() {
-            SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage("+17707571566", null, "wya", null, null);
+            final SmsManager smsManager = SmsManager.getDefault();
+            String Uid = mAuth.getCurrentUser().getUid(); // gets the user ID
+            DatabaseReference userRef = mDatabase.child("users").child((mAuth.getCurrentUser() != null) ? mAuth.getCurrentUser().getUid() : null);
+            userRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    UserFirebase fetchedUser = dataSnapshot.getValue(UserFirebase.class);
+                    String contact = "+1" + fetchedUser.getContact();
+                    String name = fetchedUser.getName();
+//                    status.setText(contact);
+                    smsManager.sendTextMessage(contact, null, name + " is missing!", null, null);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                }
+            });
         }
 
     }
@@ -421,5 +479,32 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private PopupWindow pw;
+    private void showPopup(FirebaseUser user) {
+        try {
+            // We need to get the instance of the LayoutInflater
+            LayoutInflater inflater = (LayoutInflater) MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View layout = inflater.inflate(R.layout.activity_alert,
+                    (ViewGroup) findViewById(R.id.Alertpopup));
+            pw = new PopupWindow(layout, 300, 370, true);
+            pw.showAtLocation(layout, Gravity.CENTER, 0, 0);
+
+            //check if pincode entered is the same as the user's password
+            imok.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String databasepincode = mdatabase.child(siAuth.getCurrentUser().getUid()).child("contact").toString();
+                    if(pincode.getText().toString().equals(databasepincode)) {
+                        Toast.makeText(getApplicationContext(), "Cheers", Toast.LENGTH_LONG).show();
+                        SmsManager smsManager = SmsManager.getDefault();
+                        smsManager.sendTextMessage("+17066146514", null, "safe", null, null);
+                    }
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
