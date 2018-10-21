@@ -21,7 +21,7 @@ tools:context="pistolpropulsion.com.safepath.AlertActivity">
         android:id="@+id/imageView3"
         android:layout_width="371dp"
         android:layout_height="369dp"
-        app:srcCompat="@color/place_autocomplete_prediction_secondary_text"
+        app:srcCompat="@color/colorPrimary"
         tools:layout_editor_absoluteX="0dp"
         tools:layout_editor_absoluteY="0dp" />
 
@@ -51,6 +51,8 @@ tools:context="pistolpropulsion.com.safepath.AlertActivity">
         android:layout_marginStart="8dp"
         android:ems="10"
         android:hint="@string/pin"
+        android:textColorHint="@color/colorAccent"
+        android:backgroundTint="@color/colorAccent"
         android:inputType="textPassword"
         android:maxLength="4"
         app:layout_constraintBottom_toTopOf="@+id/Confirmbutton"
@@ -59,12 +61,14 @@ tools:context="pistolpropulsion.com.safepath.AlertActivity">
 
     <Button
         android:id="@+id/Confirmbutton"
+        style="@style/Widget.AppCompat.Button.Colored"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="40dp"
         android:layout_marginEnd="8dp"
         android:layout_marginStart="8dp"
         android:text="Confirm"
+        android:background="@drawable/round_button"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
