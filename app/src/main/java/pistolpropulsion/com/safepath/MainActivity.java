@@ -298,7 +298,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void setupMap() {
         if (mMapView != null) {
-            Basemap.Type basemapType = Basemap.Type.NAVIGATION_VECTOR;
+            Basemap.Type basemapType = Basemap.Type.OCEANS;
             double latitude = lat;
             double longitude = lon;
             int levelOfDetail = 17;
