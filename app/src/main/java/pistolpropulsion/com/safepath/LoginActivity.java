@@ -1,8 +1,12 @@
 package pistolpropulsion.com.safepath;
 
+import android.Manifest;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -25,6 +29,9 @@ public class LoginActivity extends AppCompatActivity {
         private EditText email;
         private EditText password;
         private Button create_acct_button;
+
+    private static final int PERMISSION_REQUEST_ACCESS_FINE_LOCATION = 940;
+    private static final int PERMISSION_REQUEST_SEND_SMS = 941;
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
@@ -48,6 +55,18 @@ public class LoginActivity extends AppCompatActivity {
                     createAcct();
                 }
             });
+            if (ContextCompat.checkSelfPermission(LoginActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(LoginActivity.this,
+                        new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
+                        PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
+            }
+            if (ContextCompat.checkSelfPermission(LoginActivity.this, Manifest.permission.SEND_SMS)
+                    != PackageManager.PERMISSION_GRANTED) {
+                ActivityCompat.requestPermissions(LoginActivity.this,
+                        new String[]{Manifest.permission.SEND_SMS},
+                        PERMISSION_REQUEST_SEND_SMS);
+            }
         }
 
         public void signIn(String email, String password) {
