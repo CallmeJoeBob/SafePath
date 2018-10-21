@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
@@ -83,6 +84,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Timer;
 import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends AppCompatActivity {
@@ -124,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
     // SMS
     private FirebaseAuth mAuth;
     private DatabaseReference mDatabase;
+    private boolean run = false;
 
 
     @Override
@@ -418,14 +421,10 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             //setContentView(R.layout.activity_alert);
                             showPopup(siAuth.getCurrentUser());
-                            sendMissingMessage();
-                            Toast.makeText(getApplicationContext(), "Alert Sent",
-                                    Toast.LENGTH_LONG).show();
                         } catch (Exception ex) {
                             Toast.makeText(getApplicationContext(),ex.getMessage(),
                                     Toast.LENGTH_LONG).show();
                             ex.printStackTrace();
-                            sendMissingMessage();
                         }
                         break;
                     case FenceState.FALSE:
@@ -438,27 +437,30 @@ public class MainActivity extends AppCompatActivity {
             }
         }
 
-        public void sendMissingMessage() {
-            final SmsManager smsManager = SmsManager.getDefault();
-            String uid = mAuth.getCurrentUser().getUid(); // gets the user ID
-            DatabaseReference userRef = mDatabase.child("users").child((mAuth.getCurrentUser() != null) ? uid : null);
-            userRef.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                    UserFirebase fetchedUser = dataSnapshot.getValue(UserFirebase.class);
-                    String contact = "+1" + fetchedUser.getContact();
-                    String name = fetchedUser.getName();
+    }
+
+    public void sendMissingMessage() {
+        final SmsManager smsManager = SmsManager.getDefault();
+        String uid = mAuth.getCurrentUser().getUid(); // gets the user ID
+        DatabaseReference userRef = mDatabase.child("users").child((mAuth.getCurrentUser() != null) ? uid : null);
+        userRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                UserFirebase fetchedUser = dataSnapshot.getValue(UserFirebase.class);
+                String contact = "+1" + fetchedUser.getContact();
+                String name = fetchedUser.getName();
 //                    status.setText(contact);
+                if (run) {
                     smsManager.sendTextMessage(contact, null, name + " is missing!", null, null);
+                    Toast.makeText(getApplicationContext(), "Alert Sent",
+                            Toast.LENGTH_LONG).show();
                 }
+            }
 
-                @Override
-                public void onCancelled(@NonNull DatabaseError databaseError) {
-                }
-            });
-        }
-
-
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
     }
 
     // Authentication stuff
@@ -541,7 +543,15 @@ public class MainActivity extends AppCompatActivity {
 
     private PopupWindow pw;
     private void showPopup(FirebaseUser user) {
+        run = true;
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {   @Override
+        public void run() {
+            sendMissingMessage();
+        }
+        }, 10000);
         try {
+
             // We need to get the instance of the LayoutInflater
             LayoutInflater inflater = (LayoutInflater) MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View layout = inflater.inflate(R.layout.activity_alert,
@@ -572,7 +582,10 @@ public class MainActivity extends AppCompatActivity {
                                 Toast.makeText(getApplicationContext(), "Cheers", Toast.LENGTH_LONG).show();
                                 //SmsManager smsManager = SmsManager.getDefault();
                                 //smsManager.sendTextMessage("+17066146514", null, "safe", null, null);
+                                run = false;
                                 pw.dismiss();
+                            } else {
+                                Toast.makeText(getApplicationContext(), "Incorrect PIN", Toast.LENGTH_LONG).show();
                             }
                         }
                         @Override
