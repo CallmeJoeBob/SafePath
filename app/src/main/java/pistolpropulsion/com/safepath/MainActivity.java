@@ -10,6 +10,7 @@ import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Location;
 import android.support.annotation.NonNull;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -139,8 +140,6 @@ public class MainActivity extends AppCompatActivity {
         mMapView.getGraphicsOverlays().add(mGraphicsOverlay);
         logout_button = findViewById(R.id.LogoutButton);
 
-        imok = findViewById(R.id.Confirmbutton);
-        pincode = findViewById(R.id.Password);
         siAuth = FirebaseAuth.getInstance();
         mdatabase = FirebaseDatabase.getInstance().getReference();
 
@@ -359,7 +358,7 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         try {
-                            setContentView(R.layout.activity_alert);
+                            //setContentView(R.layout.activity_alert);
                             showPopup(siAuth.getCurrentUser());
                             sendMessage();
                             Toast.makeText(getApplicationContext(), "Alert Sent",
@@ -488,7 +487,15 @@ public class MainActivity extends AppCompatActivity {
             LayoutInflater inflater = (LayoutInflater) MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             View layout = inflater.inflate(R.layout.activity_alert,
                     (ViewGroup) findViewById(R.id.Alertpopup));
+
+            imok = layout.findViewById(R.id.Confirmbutton);
+            pincode = layout.findViewById(R.id.Password);
+
             pw = new PopupWindow(layout, 300, 370, true);
+            pw.setContentView(layout);
+            pw.setWidth(ConstraintLayout.LayoutParams.WRAP_CONTENT);
+            pw.setHeight(ConstraintLayout.LayoutParams.WRAP_CONTENT);
+            pw.setFocusable(true);
             pw.showAtLocation(layout, Gravity.CENTER, 0, 0);
 
             //check if pincode entered is the same as the user's password
@@ -498,8 +505,9 @@ public class MainActivity extends AppCompatActivity {
                     String databasepincode = mdatabase.child(siAuth.getCurrentUser().getUid()).child("contact").toString();
                     if(pincode.getText().toString().equals(databasepincode)) {
                         Toast.makeText(getApplicationContext(), "Cheers", Toast.LENGTH_LONG).show();
-                        SmsManager smsManager = SmsManager.getDefault();
-                        smsManager.sendTextMessage("+17066146514", null, "safe", null, null);
+                        //SmsManager smsManager = SmsManager.getDefault();
+                        //smsManager.sendTextMessage("+17066146514", null, "safe", null, null);
+                        pw.dismiss();
                     }
                 }
             });

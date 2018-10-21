@@ -11,8 +11,19 @@
         android:id="@+id/Alertpopup"
         android:layout_width="371dp"
         android:layout_height="369dp"
+        android:alpha="1"
+        android:elevation="10dp"
+        android:visibility="visible"
         tools:layout_editor_absoluteX="20dp"
         tools:layout_editor_absoluteY="58dp">
+
+        <ImageView
+            android:id="@+id/imageView3"
+            android:layout_width="371dp"
+            android:layout_height="369dp"
+            app:srcCompat="@color/place_autocomplete_prediction_secondary_text"
+            tools:layout_editor_absoluteX="0dp"
+            tools:layout_editor_absoluteY="0dp" />
 
         <TextView
             android:id="@+id/PopupMessage"
@@ -56,5 +67,6 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent" />
+
     </android.support.constraint.ConstraintLayout>
 </android.support.constraint.ConstraintLayout>
