@@ -139,24 +139,6 @@ public class MainActivity extends AppCompatActivity {
                 10001,
                 intent,
                 0);
-
-        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.SEND_SMS)
-                != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(MainActivity.this,
-                    new String[]{Manifest.permission.SEND_SMS},
-                    PERMISSION_REQUEST_SEND_SMS);
-        }
-
-        try {
-            SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage("+17707571566", null, "wya", null, null);
-            Toast.makeText(getApplicationContext(), "Message Sent",
-                    Toast.LENGTH_LONG).show();
-        } catch (Exception ex) {
-            Toast.makeText(getApplicationContext(),ex.getMessage().toString(),
-                    Toast.LENGTH_LONG).show();
-            ex.printStackTrace();
-        }
     }
 
     @Override
@@ -311,6 +293,23 @@ public class MainActivity extends AppCompatActivity {
                 switch (fenceState.getCurrentState()) {
                     case FenceState.TRUE:
                         status.setText("You left me, Joel!");
+                        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.SEND_SMS)
+                                != PackageManager.PERMISSION_GRANTED) {
+                            ActivityCompat.requestPermissions(MainActivity.this,
+                                    new String[]{Manifest.permission.SEND_SMS},
+                                    PERMISSION_REQUEST_SEND_SMS);
+                        }
+
+                        try {
+                            sendMessage();
+                            Toast.makeText(getApplicationContext(), "Message Sent",
+                                    Toast.LENGTH_LONG).show();
+                        } catch (Exception ex) {
+                            Toast.makeText(getApplicationContext(),ex.getMessage().toString(),
+                                    Toast.LENGTH_LONG).show();
+                            ex.printStackTrace();
+                            sendMessage();
+                        }
                         break;
                     case FenceState.FALSE:
                         status.setText("You didn't leave...");
@@ -320,6 +319,11 @@ public class MainActivity extends AppCompatActivity {
                         break;
                 }
             }
+        }
+
+        public void sendMessage() {
+            SmsManager smsManager = SmsManager.getDefault();
+            smsManager.sendTextMessage("+17707571566", null, "wya", null, null);
         }
 
     }
