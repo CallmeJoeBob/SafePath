@@ -171,6 +171,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 sendSafeMessage();
+                try {
+                    unregisterFence();
+                } catch (Exception e) {
+                    Toast.makeText(getApplicationContext(), "There are no trips in progress.", Toast.LENGTH_LONG).show();
+                }
+
+                mGraphicsOverlay.getGraphics().clear();
+                mStart = null;
+                mEnd = null;
+
             }
         });
 
@@ -236,7 +246,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        unregisterFence();
+        try {
+            unregisterFence();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         try {
             unregisterReceiver(fenceReceiver);
         } catch (Exception e) {
@@ -254,7 +268,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void setStartMarker(Point location) {
-        mGraphicsOverlay.getGraphics().clear();
         setMapMarker(location, SimpleMarkerSymbol.Style.DIAMOND, Color.rgb(226, 119, 40), Color.BLUE);
         mStart = location;
         mEnd = null;
@@ -274,10 +287,8 @@ public class MainActivity extends AppCompatActivity {
         } else if (mEnd == null) {
             // End is not set, set it to the tapped location then find the route
             setEndMarker(location);
-        } else {
-            // Both locations are set; re-set the start to the tapped location
-            setStartMarker(location);
         }
+        // Both are set means you do nothing untill it's cleared.
     }
 
     private void setupMap() {
@@ -557,13 +568,23 @@ public class MainActivity extends AppCompatActivity {
             imok.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    String databasepincode = mdatabase.child(siAuth.getCurrentUser().getUid()).child("contact").toString();
-                    if(pincode.getText().toString().equals(databasepincode)) {
-                        Toast.makeText(getApplicationContext(), "Cheers", Toast.LENGTH_LONG).show();
-                        //SmsManager smsManager = SmsManager.getDefault();
-                        //smsManager.sendTextMessage("+17066146514", null, "safe", null, null);
-                        pw.dismiss();
-                    }
+                    String uid = mAuth.getCurrentUser().getUid();
+                    DatabaseReference user = mDatabase.child("users").child((mAuth.getCurrentUser() != null) ? uid : null);
+                    user.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            UserFirebase user2 = dataSnapshot.getValue(UserFirebase.class);
+                            String datapincode = user2.getPinCode();
+                            if (datapincode.equals(pincode.getText().toString())) {
+                                Toast.makeText(getApplicationContext(), "Cheers", Toast.LENGTH_LONG).show();
+                                //SmsManager smsManager = SmsManager.getDefault();
+                                //smsManager.sendTextMessage("+17066146514", null, "safe", null, null);
+                                pw.dismiss();
+                            }
+                        }
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {}
+                    });
                 }
             });
         } catch (Exception e) {

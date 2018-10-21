@@ -9,12 +9,12 @@ public class UserFirebase {
     private String pwd;
     private String contact;
     private String name;
-    private String pin;
+    private String pinCode;
 
     public String getName() { return name; }
     public String getEmail() { return email; }
     public String getContact() { return contact; }
-    public String getPin() { return pin; }
+    public String getPinCode() { return pinCode; }
 
     public void setContact(String contact) {
         this.contact = contact;
@@ -32,7 +32,7 @@ public class UserFirebase {
         this.pwd = pwd;
     }
 
-    public void setPin(String pin) {
-        this.pin = pin;
+    public void setPinCode(String pinCode) {
+        this.pinCode = pinCode;
     }
 }
