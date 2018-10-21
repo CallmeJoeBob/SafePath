@@ -455,11 +455,11 @@ public class MainActivity extends AppCompatActivity {
                 String contact = "+1" + fetchedUser.getContact();
                 String name = fetchedUser.getName();
 //                    status.setText(contact);
-                if (run) {
-                    smsManager.sendTextMessage(contact, null, name + " is no longer in their zone and has not responded.", null, null);
-                    Toast.makeText(getApplicationContext(), "Alert Sent",
-                            Toast.LENGTH_LONG).show();
-                }
+
+                smsManager.sendTextMessage(contact, null, name + " is no longer in their zone and has not responded.", null, null);
+                Toast.makeText(getApplicationContext(), "Alert Sent",
+                        Toast.LENGTH_LONG).show();
+
             }
 
             @Override
