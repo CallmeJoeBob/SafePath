@@ -30,6 +30,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.esri.arcgisruntime.concurrent.ListenableFuture;
+import com.esri.arcgisruntime.geometry.ImmutablePartCollection;
+import com.esri.arcgisruntime.geometry.Part;
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.geometry.Polyline;
 import com.esri.arcgisruntime.loadable.LoadStatus;
@@ -77,6 +79,8 @@ import com.google.firebase.database.FirebaseDatabase;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
@@ -169,6 +173,7 @@ public class MainActivity extends AppCompatActivity {
         // Fence location
         fenceReceiver = new LocationBroadcastReceiver();
         Intent intent = new Intent(FENCE_RECEIVER_ACTION);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         mFencePendingIntent = PendingIntent.getBroadcast(MainActivity.this,
                 10001,
                 intent,
@@ -221,7 +226,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         unregisterFence();
-        unregisterReceiver(fenceReceiver);
+        try {
+            unregisterReceiver(fenceReceiver);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void setMapMarker(Point location, SimpleMarkerSymbol.Style style, int markerColor, int outlineColor) {
@@ -274,7 +283,7 @@ public class MainActivity extends AppCompatActivity {
 
     protected void registerFence() {
         
-        Iterable<Point> iterator = currentPath.getParts().getPartsAsPoints();
+        ImmutablePartCollection iterator = currentPath.getParts();
 
         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -283,7 +292,15 @@ public class MainActivity extends AppCompatActivity {
                     PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
         }
 
+        Iterable<Point> iteratePoints = iterator.getPartsAsPoints();
+        ArrayList<Point> PointsList = new ArrayList<>();
+        for (Point iteratePoint : iteratePoints) {
+            PointsList.add(iteratePoint);
+            setMapMarker(iteratePoint, SimpleMarkerSymbol.Style.CIRCLE, Color.rgb(0,0,0), Color.BLACK);
 
+        }
+
+        status.setText(String.valueOf(PointsList.size()));
 
 
         AwarenessFence locationFence = AwarenessFence.not(LocationFence.in(33.7765673, -84.3960469, 10, 100));
@@ -350,7 +367,7 @@ public class MainActivity extends AppCompatActivity {
                             Toast.makeText(getApplicationContext(), "Alert Sent",
                                     Toast.LENGTH_LONG).show();
                         } catch (Exception ex) {
-                            Toast.makeText(getApplicationContext(),ex.getMessage().toString(),
+                            Toast.makeText(getApplicationContext(),ex.getMessage(),
                                     Toast.LENGTH_LONG).show();
                             ex.printStackTrace();
                             sendMessage();
