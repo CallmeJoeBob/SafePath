@@ -69,23 +69,30 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         public void signIn(String email, String password) {
-            siAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
-                @Override
-                public void onComplete(@NonNull Task<AuthResult> task) {
-                    if (task.isSuccessful()) {
-                        // Sign in success, update UI with the signed-in user's information
-                        Log.d(TAG, "signInWithEmail:success");
-                        FirebaseUser user = siAuth.getCurrentUser();
-                        updateSignIn(user);
-                    } else {
-                        // If sign in fails, display a message to the user.
-                        Log.w(TAG, "signInWithEmail:failure", task.getException());
-                        Toast.makeText(LoginActivity.this, "Authentication failed.",
-                                Toast.LENGTH_SHORT).show();
-                        updateSignIn(null);
+            if (email == null || password == null || email.length()==0 || password.length()==0) {
+                Toast.makeText(LoginActivity.this, "Both fields must be entered.",
+                        Toast.LENGTH_SHORT).show();
+                updateSignIn(null);
+            } else {
+
+                siAuth.signInWithEmailAndPassword(email, password).addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if (task.isSuccessful()) {
+                            // Sign in success, update UI with the signed-in user's information
+                            Log.d(TAG, "signInWithEmail:success");
+                            FirebaseUser user = siAuth.getCurrentUser();
+                            updateSignIn(user);
+                        } else {
+                            // If sign in fails, display a message to the user.
+                            Log.w(TAG, "signInWithEmail:failure", task.getException());
+                            Toast.makeText(LoginActivity.this, "Authentication failed.",
+                                    Toast.LENGTH_SHORT).show();
+                            updateSignIn(null);
+                        }
                     }
-                }
-            });
+                });
+            }
         }
 
         public void createAcct() {

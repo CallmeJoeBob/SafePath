@@ -84,37 +84,42 @@ public class CreateAccountActivity extends AppCompatActivity {
     }
 
     public void createAccount() {
-        mAuth.createUserWithEmailAndPassword(email.getText().toString(), password.getText().toString()).addOnCompleteListener(this,
-                new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Sign in success, update UI with the signed-in user's information
-                            Log.d(TAG, "createUserWithEmail:success");
-                            FirebaseUser user = mAuth.getCurrentUser();
-                            User userObject = new User(
-                                    email.getText().toString(),
-                                    password.getText().toString(),
-                                    name.getText().toString(),
-                                    number.getText().toString(),
-                                    pincode.getText().toString());
+        if (email.getText() == null || password.getText() == null || email.getText().toString().length()==0 || password.getText().toString().length()==0) {
+            Toast.makeText(CreateAccountActivity.this, "Both fields must be entered.",
+                    Toast.LENGTH_SHORT).show();
+        } else {
+            mAuth.createUserWithEmailAndPassword(email.getText().toString(), password.getText().toString()).addOnCompleteListener(this,
+                    new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            if (task.isSuccessful()) {
+                                // Sign in success, update UI with the signed-in user's information
+                                Log.d(TAG, "createUserWithEmail:success");
+                                FirebaseUser user = mAuth.getCurrentUser();
+                                User userObject = new User(
+                                        email.getText().toString(),
+                                        password.getText().toString(),
+                                        name.getText().toString(),
+                                        number.getText().toString(),
+                                        pincode.getText().toString());
 
-                            mDatabase.child("users").child(
-                                    (user != null) ? user.getUid() : null).
-                                    setValue(userObject);
-                            sendSignUpMessage();
-                            updateUI(user);
-                        } else {
-                            // If sign in fails, display a message to the user.
-                            Log.w(TAG, "createUserWithEmail:failure", task.getException());
-                            Toast.makeText(CreateAccountActivity.this, "Authentication failed.",
-                                    Toast.LENGTH_SHORT).show();
-                            updateUI(null);
+                                mDatabase.child("users").child(
+                                        (user != null) ? user.getUid() : null).
+                                        setValue(userObject);
+                                sendSignUpMessage();
+                                updateUI(user);
+                            } else {
+                                // If sign in fails, display a message to the user.
+                                Log.w(TAG, "createUserWithEmail:failure", task.getException());
+                                Toast.makeText(CreateAccountActivity.this, "Authentication failed.",
+                                        Toast.LENGTH_SHORT).show();
+                                updateUI(null);
+                            }
+
+                            // ...
                         }
-
-                        // ...
-                    }
-                });
+                    });
+        }
 
     }
     public void sendSignUpMessage() {
