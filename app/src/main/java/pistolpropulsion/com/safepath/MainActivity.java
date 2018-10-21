@@ -325,7 +325,7 @@ public class MainActivity extends AppCompatActivity {
         ArrayList<AwarenessFence> fences = new ArrayList<>();
         for (Point iteratePoint : iteratePoints) {
             PointsList.add(iteratePoint);
-            setMapMarker(iteratePoint, SimpleMarkerSymbol.Style.CIRCLE, Color.rgb(0,0,0), Color.BLACK);
+            //setMapMarker(iteratePoint, SimpleMarkerSymbol.Style.CIRCLE, Color.rgb(0,0,0), Color.BLACK); -Points visualization
             AwarenessFence locationFence = AwarenessFence.not(LocationFence.in(iteratePoint.getY(), iteratePoint.getX(), 50, 1000));
             fences.add(locationFence);
         }
