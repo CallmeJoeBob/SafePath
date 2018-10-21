@@ -455,11 +455,11 @@ public class MainActivity extends AppCompatActivity {
                 String contact = "+1" + fetchedUser.getContact();
                 String name = fetchedUser.getName();
 //                    status.setText(contact);
-                if (run) {
-                    smsManager.sendTextMessage(contact, null, name + " is missing!", null, null);
-                    Toast.makeText(getApplicationContext(), "Alert Sent",
-                            Toast.LENGTH_LONG).show();
-                }
+
+                smsManager.sendTextMessage(contact, null, name + " is no longer in their zone and has not responded.", null, null);
+                Toast.makeText(getApplicationContext(), "Alert Sent",
+                        Toast.LENGTH_LONG).show();
+
             }
 
             @Override
@@ -585,6 +585,7 @@ public class MainActivity extends AppCompatActivity {
                             UserFirebase user2 = dataSnapshot.getValue(UserFirebase.class);
                             String datapincode = user2.getPinCode();
                             if (datapincode.equals(pincode.getText().toString())) {
+                                sendRespondedMessage();
                                 //Toast.makeText(getApplicationContext(), "Cheers", Toast.LENGTH_LONG).show();
                                 //SmsManager smsManager = SmsManager.getDefault();
                                 //smsManager.sendTextMessage("+17066146514", null, "safe", null, null);
@@ -603,7 +604,29 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
         }
     }
+    public void sendRespondedMessage() {
+        final SmsManager smsManager = SmsManager.getDefault();
+        String uid = mAuth.getCurrentUser().getUid(); // gets the user ID
+        DatabaseReference userRef = mDatabase.child("users").child((mAuth.getCurrentUser() != null) ? uid : null);
+        userRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                UserFirebase fetchedUser = dataSnapshot.getValue(UserFirebase.class);
+                String contact = "+1" + fetchedUser.getContact();
+                String name = fetchedUser.getName();
+//                    status.setText(contact);
+                if (run) {
+                    smsManager.sendTextMessage(contact, null, name + " has confirmed their safety.", null, null);
+                    Toast.makeText(getApplicationContext(), "Alert Sent",
+                            Toast.LENGTH_LONG).show();
+                }
+            }
 
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+            }
+        });
+    }
     private PopupWindow pw_finish;
     private void showPopupFinish(FirebaseUser user) {
         try {
