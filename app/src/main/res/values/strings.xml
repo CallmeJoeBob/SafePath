@@ -4,7 +4,7 @@
     <string name="pass">Password</string>
     <string name="button">Button</string>
     <string name="name">Name</string>
-    <string name="phone">Emergency #</string>
+    <string name="phone">Emergency Contact #</string>
     <string name="create_account">Create Account</string>
     <string name="logout">Logout</string>
 </resources>
