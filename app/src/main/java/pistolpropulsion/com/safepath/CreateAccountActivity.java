@@ -34,6 +34,7 @@ public class CreateAccountActivity extends AppCompatActivity {
     private EditText password;
     private EditText name;
     private EditText number;
+    private EditText pincode;
 
     private DatabaseReference mDatabase;
 
@@ -50,6 +51,7 @@ public class CreateAccountActivity extends AppCompatActivity {
 
         name = findViewById(R.id.NameInput);
         number = findViewById(R.id.PhoneInput);
+        pincode = findViewById(R.id.PincodeInput);
 
         createaccount_button = findViewById(R.id.createaccount);
 
@@ -90,7 +92,8 @@ public class CreateAccountActivity extends AppCompatActivity {
                                     email.getText().toString(),
                                     password.getText().toString(),
                                     name.getText().toString(),
-                                    number.getText().toString());
+                                    number.getText().toString(),
+                                    pincode.getText().toString());
 
                             mDatabase.child("users").child(
                                     (user != null) ? user.getUid() : null).
