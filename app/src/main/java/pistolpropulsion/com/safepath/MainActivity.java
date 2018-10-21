@@ -140,8 +140,8 @@ public class MainActivity extends AppCompatActivity {
         mGraphicsOverlay = new GraphicsOverlay();
         mMapView.getGraphicsOverlays().add(mGraphicsOverlay);
         logout_button = findViewById(R.id.LogoutButton);
-
         end_trip_button = findViewById(R.id.EndTripButton);
+        
         imok = findViewById(R.id.Confirmbutton);
         pincode = findViewById(R.id.Password);
 
