@@ -213,6 +213,8 @@ public class MainActivity extends AppCompatActivity {
                         setupOauth();
                     }
                 });
+        Point initialLocation = new Point(lon,lat);
+        setStartMarker(initialLocation);
     }
 
     @Override
