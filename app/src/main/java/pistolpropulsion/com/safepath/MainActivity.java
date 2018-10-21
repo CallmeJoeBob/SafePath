@@ -427,6 +427,9 @@ public class MainActivity extends AppCompatActivity {
                         try {
                             //setContentView(R.layout.activity_alert);
                             showPopup(siAuth.getCurrentUser());
+                            sendMissingMessage();
+                            Toast.makeText(getApplicationContext(), "Alert Sent",
+                                    Toast.LENGTH_LONG).show();
                         } catch (Exception ex) {
                             Toast.makeText(getApplicationContext(),ex.getMessage(),
                                     Toast.LENGTH_LONG).show();
