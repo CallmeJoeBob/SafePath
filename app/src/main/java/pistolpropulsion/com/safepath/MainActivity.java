@@ -17,11 +17,15 @@ import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.text.TextUtils;
 import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -61,6 +65,7 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.ResultCallbacks;
 import com.google.android.gms.common.api.Status;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -96,6 +101,11 @@ public class MainActivity extends AppCompatActivity {
     // Widgets
     private TextView status;
 
+    //popup stuff
+    private Button imok;
+    private EditText password;
+    private FirebaseAuth siAuth;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,6 +117,11 @@ public class MainActivity extends AppCompatActivity {
         mGraphicsOverlay = new GraphicsOverlay();
         mMapView.getGraphicsOverlays().add(mGraphicsOverlay);
         logout_button = findViewById(R.id.LogoutButton);
+
+        imok = findViewById(R.id.Confirmbutton);
+        password = findViewById(R.id.Password);
+        siAuth = FirebaseAuth.getInstance();
+
         mMapView.setOnTouchListener(new DefaultMapViewOnTouchListener(this, mMapView) {
             @Override
             public boolean onSingleTapConfirmed(MotionEvent e) {
@@ -301,6 +316,8 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         try {
+                            setContentView(R.layout.activity_alert);
+                            showPopup(siAuth.getCurrentUser());
                             sendMessage();
                             Toast.makeText(getApplicationContext(), "Message Sent",
                                     Toast.LENGTH_LONG).show();
@@ -404,5 +421,21 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    private PopupWindow pw;
+    private void showPopup(FirebaseUser user) {
+        try {
+            // We need to get the instance of the LayoutInflater
+            LayoutInflater inflater = (LayoutInflater) MainActivity.this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            View layout = inflater.inflate(R.layout.activity_alert,
+                    (ViewGroup) findViewById(R.id.Alertpopup));
+            pw = new PopupWindow(layout, 300, 370, true);
+            pw.showAtLocation(layout, Gravity.CENTER, 0, 0);
+
+            //check if password entered is the same as the user's password
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
