@@ -134,6 +134,7 @@
         android:fontFamily="@font/anaheim"
         android:hint="PinCode"
         android:inputType="number"
+        android:maxLength="4"
         app:layout_constraintBottom_toTopOf="@+id/createaccount"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
