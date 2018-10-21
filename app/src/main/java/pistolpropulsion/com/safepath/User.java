@@ -6,7 +6,9 @@ public class User {
     private String ec;
     private String name;
     public User(String e,String p,String na,String nu){
-        email = e;
+        // deal with wack e-mails
+
+        email = "+1" + e;
         pwd = p;
         ec = nu;
         name = na;

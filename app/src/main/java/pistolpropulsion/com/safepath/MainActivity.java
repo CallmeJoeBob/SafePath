@@ -61,6 +61,11 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.ResultCallbacks;
 import com.google.android.gms.common.api.Status;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -97,9 +102,18 @@ public class MainActivity extends AppCompatActivity {
     private TextView status;
 
 
+    // SMS
+    private FirebaseAuth mAuth;
+    private DatabaseReference mDatabase;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        // Set SMS Shenanigans
+        mAuth = FirebaseAuth.getInstance();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+
         // Set widgets
         setContentView(R.layout.activity_main);
         status = findViewById(R.id.status);
@@ -302,7 +316,7 @@ public class MainActivity extends AppCompatActivity {
 
                         try {
                             sendMessage();
-                            Toast.makeText(getApplicationContext(), "Message Sent",
+                            Toast.makeText(getApplicationContext(), "Alert Sent",
                                     Toast.LENGTH_LONG).show();
                         } catch (Exception ex) {
                             Toast.makeText(getApplicationContext(),ex.getMessage().toString(),
@@ -312,18 +326,33 @@ public class MainActivity extends AppCompatActivity {
                         }
                         break;
                     case FenceState.FALSE:
-                        status.setText("You didn't leave...");
+                        status.setText("Stay Safe!");
                         break;
                     case FenceState.UNKNOWN:
-                        status.setText("Idk bro.");
+                        status.setText("Service Unable to Locate Geofence.");
                         break;
                 }
             }
         }
 
         public void sendMessage() {
-            SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage("+17707571566", null, "wya", null, null);
+            final SmsManager smsManager = SmsManager.getDefault();
+            String Uid = mAuth.getCurrentUser().getUid(); // gets the user ID
+            DatabaseReference userRef = mDatabase.child("users").child((mAuth.getCurrentUser() != null) ? mAuth.getCurrentUser().getUid() : null);
+            userRef.addValueEventListener(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                    UserFirebase fetchedUser = dataSnapshot.getValue(UserFirebase.class);
+                    String contact = "+1" + fetchedUser.getContact();
+                    String name = fetchedUser.getName();
+//                    status.setText(contact);
+                    smsManager.sendTextMessage(contact, null, name + " is missing!", null, null);
+                }
+
+                @Override
+                public void onCancelled(@NonNull DatabaseError databaseError) {
+                }
+            });
         }
 
     }
