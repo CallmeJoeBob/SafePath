@@ -91,7 +91,7 @@ public class CreateAccountActivity extends AppCompatActivity {
                                     password.getText().toString(),
                                     name.getText().toString(),
                                     number.getText().toString());
-                            
+
                             mDatabase.child("users").child(
                                     (user != null) ? user.getUid() : null).
                                     setValue(userObject);

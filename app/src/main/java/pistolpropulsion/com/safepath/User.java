@@ -11,4 +11,7 @@ public class User {
         ec = nu;
         name = na;
     }
+    public String getName() { return name; }
+    public String getEmail() { return email; }
+    public String getContact() { return ec; }
 }
