@@ -14,7 +14,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity">
+        <activity android:name=".MainActivity"
+            android:theme="@style/Nighttime">
             <!--<intent-filter>-->
                 <!--<action android:name="android.intent.action.MAIN" />-->
 
@@ -37,14 +38,17 @@
             android:name="com.google.android.awareness.API_KEY"
             android:value="AIzaSyBkQwzB7mT9ystSiW81vulG5caxMWnrxNc" />
 
-        <activity android:name=".AlertActivity"></activity>
-        <activity android:name=".CreateAccountActivity">
+        <activity android:name=".AlertActivity">
+        </activity>
+        <activity android:name=".CreateAccountActivity"
+            android:theme="@style/Nighttime">
             <!--<intent-filter>-->
                 <!--<action android:name="android.intent.action.MAIN" />-->
                 <!--<category android:name="android.intent.category.LAUNCHER" />-->
             <!--</intent-filter>-->
         </activity>
-        <activity android:name=".LoginActivity">
+        <activity android:name=".LoginActivity"
+            android:theme="@style/Nighttime">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
