@@ -197,6 +197,8 @@ public class MainActivity extends AppCompatActivity {
                 10001,
                 intent,
                 0);
+
+        status.setText("Click on the map above to set your start point.");
     }
 
     @Override
@@ -269,12 +271,14 @@ public class MainActivity extends AppCompatActivity {
         setMapMarker(location, SimpleMarkerSymbol.Style.DIAMOND, Color.rgb(226, 119, 40), Color.BLUE);
         mStart = location;
         mEnd = null;
+        status.setText("Click on the map above to set your end point.");
     }
 
     private void setEndMarker(Point location) {
         setMapMarker(location, SimpleMarkerSymbol.Style.SQUARE, Color.rgb(40, 119, 226), Color.RED);
         mEnd = location;
         findRoute();
+        status.setText("");
 
     }
 
@@ -339,8 +343,6 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                 });
-
-        status.setText(String.valueOf(PointsList.size()));
     }
 
     // Help clear the fences when the app finishes
@@ -390,7 +392,6 @@ public class MainActivity extends AppCompatActivity {
                 UserFirebase fetchedUser = dataSnapshot.getValue(UserFirebase.class);
                 String contact = "+1" + fetchedUser.getContact();
                 String name = fetchedUser.getName();
-//                    status.setText(contact);
                 smsManager.sendTextMessage(contact, null, name + " has arrived safely.", null, null);
             }
 
@@ -434,7 +435,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                         break;
                     case FenceState.FALSE:
-                        status.setText("Stay Safe!");
+                        status.setText("You're in the area. Stay Safe!");
                         break;
                     case FenceState.UNKNOWN:
                         status.setText("Service Unable to Locate Geofence.");
@@ -453,7 +454,6 @@ public class MainActivity extends AppCompatActivity {
                     UserFirebase fetchedUser = dataSnapshot.getValue(UserFirebase.class);
                     String contact = "+1" + fetchedUser.getContact();
                     String name = fetchedUser.getName();
-//                    status.setText(contact);
                     smsManager.sendTextMessage(contact, null, name + " is missing!", null, null);
                 }
 
@@ -632,6 +632,7 @@ public class MainActivity extends AppCompatActivity {
                                 mGraphicsOverlay.getGraphics().clear();
                                 mStart = null;
                                 mEnd = null;
+                                status.setText("Click on the map above to set your start point.");
                                 pw.dismiss();
                             }
                         }
