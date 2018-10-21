@@ -82,6 +82,7 @@ public class MainActivity extends AppCompatActivity {
     private double lat;
     private double lon;
     private Button logout_button;
+    private Polyline currentPath;
 
 
     // Constants
@@ -166,9 +167,6 @@ public class MainActivity extends AppCompatActivity {
                         setupOauth();
                     }
                 });
-
-        registerFence();
-        registerReceiver(fenceReceiver, new IntentFilter(FENCE_RECEIVER_ACTION));
     }
 
     @Override
@@ -198,6 +196,7 @@ public class MainActivity extends AppCompatActivity {
         setMapMarker(location, SimpleMarkerSymbol.Style.SQUARE, Color.rgb(40, 119, 226), Color.RED);
         mEnd = location;
         findRoute();
+
     }
 
     private void mapClicked(Point location) {
@@ -226,12 +225,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     protected void registerFence() {
+        
+        Iterable<Point> iterator = currentPath.getParts().getPartsAsPoints();
+
         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(MainActivity.this,
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     PERMISSION_REQUEST_ACCESS_FINE_LOCATION);
         }
+
+
+
+
         AwarenessFence locationFence = AwarenessFence.not(LocationFence.in(33.7765673, -84.3960469, 10, 100));
         Awareness.FenceApi.updateFences(
                 mGoogleApiClient,
@@ -348,9 +354,12 @@ public class MainActivity extends AppCompatActivity {
                                             RouteResult routeResult = routeResultFuture.get();
                                             Route firstRoute = routeResult.getRoutes().get(0);
                                             Polyline routePolyline = firstRoute.getRouteGeometry();
+                                            currentPath = routePolyline;
                                             SimpleLineSymbol routeSymbol = new SimpleLineSymbol(SimpleLineSymbol.Style.SOLID, Color.BLUE, 4.0f);
                                             Graphic routeGraphic = new Graphic(routePolyline, routeSymbol);
                                             mGraphicsOverlay.getGraphics().add(routeGraphic);
+                                            registerFence();
+                                            registerReceiver(fenceReceiver, new IntentFilter(FENCE_RECEIVER_ACTION));
 
                                         } catch (InterruptedException | ExecutionException e) {
                                             showError("Solve RouteTask failed " + e.getMessage());
