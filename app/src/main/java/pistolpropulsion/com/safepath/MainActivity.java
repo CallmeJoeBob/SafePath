@@ -236,7 +236,11 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStop() {
         super.onStop();
-        unregisterFence();
+        try {
+            unregisterFence();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         try {
             unregisterReceiver(fenceReceiver);
         } catch (Exception e) {
