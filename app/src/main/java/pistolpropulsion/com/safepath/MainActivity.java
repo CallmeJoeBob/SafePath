@@ -568,13 +568,23 @@ public class MainActivity extends AppCompatActivity {
             imok.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    String databasepincode = mdatabase.child(siAuth.getCurrentUser().getUid()).child("contact").toString();
-                    if(pincode.getText().toString().equals(databasepincode)) {
-                        Toast.makeText(getApplicationContext(), "Cheers", Toast.LENGTH_LONG).show();
-                        //SmsManager smsManager = SmsManager.getDefault();
-                        //smsManager.sendTextMessage("+17066146514", null, "safe", null, null);
-                        pw.dismiss();
-                    }
+                    String uid = mAuth.getCurrentUser().getUid();
+                    DatabaseReference user = mDatabase.child("users").child((mAuth.getCurrentUser() != null) ? uid : null);
+                    user.addValueEventListener(new ValueEventListener() {
+                        @Override
+                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                            UserFirebase user2 = dataSnapshot.getValue(UserFirebase.class);
+                            String datapincode = user2.getPinCode();
+                            if (datapincode.equals(pincode.getText().toString())) {
+                                Toast.makeText(getApplicationContext(), "Cheers", Toast.LENGTH_LONG).show();
+                                //SmsManager smsManager = SmsManager.getDefault();
+                                //smsManager.sendTextMessage("+17066146514", null, "safe", null, null);
+                                pw.dismiss();
+                            }
+                        }
+                        @Override
+                        public void onCancelled(@NonNull DatabaseError databaseError) {}
+                    });
                 }
             });
         } catch (Exception e) {
