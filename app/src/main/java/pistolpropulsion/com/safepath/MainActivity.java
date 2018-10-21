@@ -66,6 +66,8 @@ import com.google.android.gms.common.api.ResultCallbacks;
 import com.google.android.gms.common.api.Status;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -103,8 +105,9 @@ public class MainActivity extends AppCompatActivity {
 
     //popup stuff
     private Button imok;
-    private EditText password;
+    private EditText pincode;
     private FirebaseAuth siAuth;
+    private DatabaseReference mdatabase;
 
 
     @Override
@@ -119,8 +122,9 @@ public class MainActivity extends AppCompatActivity {
         logout_button = findViewById(R.id.LogoutButton);
 
         imok = findViewById(R.id.Confirmbutton);
-        password = findViewById(R.id.Password);
+        pincode = findViewById(R.id.Password);
         siAuth = FirebaseAuth.getInstance();
+        mdatabase = FirebaseDatabase.getInstance().getReference();
 
         mMapView.setOnTouchListener(new DefaultMapViewOnTouchListener(this, mMapView) {
             @Override
@@ -433,7 +437,17 @@ public class MainActivity extends AppCompatActivity {
             pw = new PopupWindow(layout, 300, 370, true);
             pw.showAtLocation(layout, Gravity.CENTER, 0, 0);
 
-            //check if password entered is the same as the user's password
+            //check if pincode entered is the same as the user's password
+            imok.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    String databasepincode = mdatabase.child(siAuth.getCurrentUser().getUid()).child("contact").toString();
+                    if(pincode.getText().toString().equals(databasepincode)) {
+                        SmsManager smsManager = SmsManager.getDefault();
+                        smsManager.sendTextMessage("+17066146514", null, "safe", null, null);
+                    }
+                }
+            });
         } catch (Exception e) {
             e.printStackTrace();
         }
